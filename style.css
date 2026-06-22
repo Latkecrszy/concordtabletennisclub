@@ -28,6 +28,20 @@ a:hover {
   color: #6b1414;
 }
 
+.button-link {
+  display: inline-block;
+  border: 1px solid var(--red);
+  background: var(--red);
+  color: #fff;
+  padding: 8px 14px;
+  text-decoration: none;
+}
+
+.button-link:hover {
+  background: #6b1414;
+  color: #fff;
+}
+
 /* ---- Header ---- */
 
 header {
