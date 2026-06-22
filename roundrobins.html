@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Round Robins - Concord Table Tennis Club</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="roundrobins.html" class="active">Round Robins</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="membership.html">Membership</a>
+      <a href="coaching.html">Coaching</a>
+      <a href="rules.html">Rules</a>
+      <a href="pictures.html">Pictures</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <h1>Round Robins</h1>
+
+  <p>Every Monday and Wednesday night, players are divided into groups of 5 or 6 by rating and play a round robin against everyone in their group. Results are posted after each session. Ratings are updated based on wins and losses within the group.</p>
+
+  <h2>Current session results</h2>
+
+  <p>Results for each session are posted to Google Sheets after the night ends. Monday and Wednesday results are on separate sheets.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Night</th>
+        <th>Results sheet</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Monday</td>
+        <td><a href="https://sites.google.com/site/concordtabletennis/monday-rr-results" target="_blank" rel="noopener">Monday RR Results</a></td>
+      </tr>
+      <tr>
+        <td>Wednesday</td>
+        <td><a href="https://sites.google.com/site/concordtabletennis/Thursday" target="_blank" rel="noopener">Wednesday RR Results</a></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Archive</h2>
+
+  <div id="archive">
+    <p id="archive-loading">Loading sessions...</p>
+  </div>
+
+</main>
+
+<footer>
+  Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
+</footer>
+
+<script>
+(function () {
+  var MONTHS = [
+    "January","February","March","April","May","June",
+    "July","August","September","October","November","December"
+  ];
+  var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  var yearDetailsCache = {};
+
+  function formatDate(dateStr) {
+    var parts = dateStr.split("-");
+    var y = parseInt(parts[0]);
+    var m = parseInt(parts[1]);
+    var d = parseInt(parts[2]);
+    var dt = new Date(y, m - 1, d);
+    return MONTHS[m - 1] + " " + d + " (" + DAYS[dt.getDay()] + ")";
+  }
+
+  function rawReportUrl(fileId) {
+    return "https://drive.google.com/file/d/" + fileId + "/view";
+  }
+
+  function signed(value) {
+    var n = Number(value || 0);
+    return n > 0 ? "+" + n : String(n);
+  }
+
+  function groupRecord(player) {
+    if (player.wins === null || player.losses === null) return "-";
+    return player.wins + "-" + player.losses;
+  }
+
+  function loadYearDetails(year) {
+    if (!yearDetailsCache[year]) {
+      yearDetailsCache[year] = fetch("data/session-details-" + year + ".json")
+        .then(function (r) {
+          if (!r.ok) throw new Error("Could not load " + year + " results.");
+          return r.json();
+        });
+    }
+    return yearDetailsCache[year];
+  }
+
+  function appendRawLink(container, session) {
+    var raw = document.createElement("a");
+    raw.className = "session-raw-link";
+    raw.href = rawReportUrl(session.fileId);
+    raw.target = "_blank";
+    raw.rel = "noopener";
+    raw.textContent = "view raw file";
+    container.appendChild(raw);
+  }
+
+  function renderGroup(container, group) {
+    var section = document.createElement("section");
+    section.className = "session-group";
+
+    var heading = document.createElement("h3");
+    heading.textContent = group.name;
+    section.appendChild(heading);
+
+    var table = document.createElement("table");
+    table.className = "session-group-table";
+
+    var thead = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    ["Name", "W-L", "Adj", "Rating"].forEach(function (label) {
+      var th = document.createElement("th");
+      th.textContent = label;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    group.players.forEach(function (player) {
+      var row = document.createElement("tr");
+      [
+        player.name,
+        groupRecord(player),
+        signed(player.ratingAdj),
+        player.ratingAfter
+      ].forEach(function (value) {
+        var td = document.createElement("td");
+        td.textContent = value;
+        row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    section.appendChild(table);
+    container.appendChild(section);
+  }
+
+  function renderSession(sessionDetails, fallbackSession, body) {
+    body.innerHTML = "";
+    appendRawLink(body, fallbackSession);
+
+    if (!sessionDetails || !sessionDetails.groups || !sessionDetails.groups.length) {
+      var unavailable = document.createElement("p");
+      unavailable.className = "session-unavailable";
+      unavailable.textContent = sessionDetails && sessionDetails.error
+        ? "Parsed results are unavailable: " + sessionDetails.error + "."
+        : "Parsed results are unavailable for this session.";
+      body.appendChild(unavailable);
+      return;
+    }
+
+    sessionDetails.groups.forEach(function (group) {
+      renderGroup(body, group);
+    });
+  }
+
+  function renderSessionWhenOpened(details, body, year, fallbackSession) {
+    if (!details.open || details.dataset.loaded === "true") return;
+
+    body.innerHTML = "<p class=\"session-loading\">Loading results...</p>";
+    loadYearDetails(year)
+      .then(function (sessions) {
+        var sessionDetails = sessions.find(function (item) {
+          return item.date === fallbackSession.date;
+        });
+        renderSession(sessionDetails, fallbackSession, body);
+        details.dataset.loaded = "true";
+      })
+      .catch(function () {
+        body.innerHTML = "";
+        appendRawLink(body, fallbackSession);
+        var error = document.createElement("p");
+        error.className = "session-unavailable";
+        error.textContent = "Could not load parsed results for this year.";
+        body.appendChild(error);
+      });
+  }
+
+  fetch("data/sessions.json")
+    .then(function (r) { return r.json(); })
+    .then(function (sessions) {
+      var container = document.getElementById("archive");
+      container.innerHTML = "";
+
+      // Group by year then month
+      var byYear = {};
+      sessions.forEach(function (s) {
+        var parts = s.date.split("-");
+        var y = parseInt(parts[0]);
+        var m = parseInt(parts[1]);
+        if (!byYear[y]) byYear[y] = {};
+        if (!byYear[y][m]) byYear[y][m] = [];
+        byYear[y][m].push({ day: parseInt(parts[2]), date: s.date, fileId: s.fileId });
+      });
+
+      var years = Object.keys(byYear).map(Number).sort(function (a, b) { return b - a; });
+      var latestYear = years[0];
+
+      years.forEach(function (year) {
+        var yDetails = document.createElement("details");
+        if (year === latestYear) yDetails.open = true;
+
+        var ySummary = document.createElement("summary");
+        ySummary.textContent = String(year);
+        yDetails.appendChild(ySummary);
+        yDetails.addEventListener("toggle", function () {
+          if (yDetails.open) loadYearDetails(year).catch(function () {});
+        });
+
+        var months = Object.keys(byYear[year]).map(Number).sort(function (a, b) { return b - a; });
+        var latestMonth = months[0];
+
+        months.forEach(function (mon) {
+          var mDetails = document.createElement("details");
+          if (year === latestYear && mon === latestMonth) mDetails.open = true;
+
+          var mSummary = document.createElement("summary");
+          mSummary.textContent = MONTHS[mon - 1];
+          mDetails.appendChild(mSummary);
+
+          var ul = document.createElement("ul");
+          var items = byYear[year][mon].slice().sort(function (a, b) { return b.day - a.day; });
+
+          items.forEach(function (s) {
+            var li = document.createElement("li");
+            var sDetails = document.createElement("details");
+            sDetails.className = "archive-session";
+
+            var sSummary = document.createElement("summary");
+            sSummary.textContent = formatDate(s.date);
+            sDetails.appendChild(sSummary);
+
+            var body = document.createElement("div");
+            body.className = "session-detail-body";
+            sDetails.appendChild(body);
+
+            sDetails.addEventListener("toggle", function () {
+              renderSessionWhenOpened(sDetails, body, year, s);
+            });
+
+            li.appendChild(sDetails);
+            ul.appendChild(li);
+          });
+
+          mDetails.appendChild(ul);
+          yDetails.appendChild(mDetails);
+        });
+
+        container.appendChild(yDetails);
+        if (yDetails.open) loadYearDetails(year).catch(function () {});
+      });
+    })
+    .catch(function () {
+      document.getElementById("archive").innerHTML =
+        "<p>Could not load the archive. Try refreshing the page.</p>";
+    });
+}());
+</script>
+
+</body>
+</html>

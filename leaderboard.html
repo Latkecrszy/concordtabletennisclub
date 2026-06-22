@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leaderboard - Concord Table Tennis Club</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="roundrobins.html">Round Robins</a>
+      <a href="leaderboard.html" class="active">Leaderboard</a>
+      <a href="membership.html">Membership</a>
+      <a href="coaching.html">Coaching</a>
+      <a href="rules.html">Rules</a>
+      <a href="pictures.html">Pictures</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <h1>Leaderboard</h1>
+
+  <p>Ratings, trends, and head-to-head records are calculated from round robin sessions beginning January 2024.</p>
+
+  <div id="comparison-panel" class="comparison-panel" hidden></div>
+
+  <div id="leaderboard-status">Loading leaderboard...</div>
+
+  <div id="leaderboard-tools" class="leaderboard-tools" hidden>
+    <label class="visually-hidden" for="leaderboard-search">Search players</label>
+    <input id="leaderboard-search" class="leaderboard-search" type="search" placeholder="Search players" autocomplete="off">
+    <div id="leaderboard-count" class="leaderboard-count"></div>
+  </div>
+
+  <table class="leaderboard-table" hidden>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Player</th>
+        <th>Rating</th>
+        <th>Trend</th>
+        <th>Sessions</th>
+        <th>W-L</th>
+      </tr>
+    </thead>
+    <tbody id="leaderboard-body"></tbody>
+  </table>
+
+</main>
+
+<footer>
+  Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
+</footer>
+
+<script>
+(function () {
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var players = [];
+  var searchQuery = "";
+  var expandedPlayer = null;
+  var compareFirst = null;
+  var compareSecond = null;
+
+  var status = document.getElementById("leaderboard-status");
+  var tools = document.getElementById("leaderboard-tools");
+  var searchInput = document.getElementById("leaderboard-search");
+  var count = document.getElementById("leaderboard-count");
+  var table = document.querySelector(".leaderboard-table");
+  var tbody = document.getElementById("leaderboard-body");
+  var comparisonPanel = document.getElementById("comparison-panel");
+
+  function clear(node) {
+    while (node.firstChild) node.removeChild(node.firstChild);
+  }
+
+  function formatRecord(wins, losses) {
+    return wins + "-" + losses;
+  }
+
+  function formatDate(date) {
+    var parts = String(date || "").split("-");
+    if (parts.length !== 3) return "";
+    return Number(parts[1]) + "/" + Number(parts[2]) + "/" + parts[0].slice(2);
+  }
+
+  function visiblePlayers() {
+    var query = searchQuery.trim().toLowerCase();
+    if (!query) return players;
+    return players.filter(function (player) {
+      return player.name.toLowerCase().indexOf(query) !== -1;
+    });
+  }
+
+  function updateCount(visible) {
+    if (!searchQuery.trim()) {
+      count.textContent = players.length + " players";
+      return;
+    }
+    count.textContent = visible.length + " of " + players.length + " players";
+  }
+
+  function ratingBounds(history) {
+    var ratings = history.map(function (item) { return item.rating; });
+    var min = Math.min.apply(null, ratings);
+    var max = Math.max.apply(null, ratings);
+    if (!Number.isFinite(min) || !Number.isFinite(max)) {
+      min = 0;
+      max = 1;
+    }
+    if (min === max) {
+      min -= 1;
+      max += 1;
+    }
+    return { min: min, max: max };
+  }
+
+  function createSvg(tag) {
+    return document.createElementNS(SVG_NS, tag);
+  }
+
+  function makeRatingLine(history, width, height, options) {
+    options = options || {};
+    var data = options.limit ? history.slice(-options.limit) : history.slice();
+    var svg = createSvg("svg");
+    svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+    svg.setAttribute("class", options.className || "sparkline");
+    svg.setAttribute("aria-hidden", "true");
+
+    if (!data.length) return svg;
+
+    var padLeft = options.labels ? 34 : 2;
+    var padRight = options.labels ? 8 : 2;
+    var padTop = 5;
+    var padBottom = options.labels ? 20 : 3;
+    var bounds = ratingBounds(data);
+    var xMax = Math.max(1, data.length - 1);
+
+    var points = data.map(function (item, index) {
+      var x = padLeft + ((width - padLeft - padRight) * index / xMax);
+      var y = padTop + ((height - padTop - padBottom) * (bounds.max - item.rating) / (bounds.max - bounds.min));
+      return x.toFixed(1) + "," + y.toFixed(1);
+    }).join(" ");
+
+    var line = createSvg("polyline");
+    line.setAttribute("points", points);
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke", "#8B1A1A");
+    line.setAttribute("stroke-width", options.labels ? "2" : "1.6");
+    line.setAttribute("stroke-linecap", "round");
+    line.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(line);
+
+    if (options.labels) {
+      var axis = createSvg("line");
+      axis.setAttribute("x1", padLeft);
+      axis.setAttribute("x2", width - padRight);
+      axis.setAttribute("y1", height - padBottom + 5);
+      axis.setAttribute("y2", height - padBottom + 5);
+      axis.setAttribute("stroke", "#ddd8d0");
+      svg.appendChild(axis);
+
+      var minLabel = createSvg("text");
+      minLabel.setAttribute("x", 0);
+      minLabel.setAttribute("y", height - padBottom + 3);
+      minLabel.textContent = Math.round(bounds.min);
+      svg.appendChild(minLabel);
+
+      var maxLabel = createSvg("text");
+      maxLabel.setAttribute("x", 0);
+      maxLabel.setAttribute("y", padTop + 3);
+      maxLabel.textContent = Math.round(bounds.max);
+      svg.appendChild(maxLabel);
+
+      var firstDate = createSvg("text");
+      firstDate.setAttribute("x", padLeft);
+      firstDate.setAttribute("y", height - 4);
+      firstDate.textContent = formatDate(data[0].date);
+      svg.appendChild(firstDate);
+
+      var lastDate = createSvg("text");
+      lastDate.setAttribute("x", width - padRight);
+      lastDate.setAttribute("y", height - 4);
+      lastDate.setAttribute("text-anchor", "end");
+      lastDate.textContent = formatDate(data[data.length - 1].date);
+      svg.appendChild(lastDate);
+    }
+
+    return svg;
+  }
+
+  function topRivals(player) {
+    return Object.keys(player.headToHead || {}).map(function (name) {
+      var record = player.headToHead[name];
+      return { name: name, wins: record.wins, losses: record.losses };
+    }).sort(function (a, b) {
+      var matches = (b.wins + b.losses) - (a.wins + a.losses);
+      return matches || a.name.localeCompare(b.name);
+    }).slice(0, 10);
+  }
+
+  function makeRivalsTable(player) {
+    var rivals = topRivals(player);
+    var tableEl = document.createElement("table");
+    tableEl.className = "head-to-head-table";
+
+    var thead = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    ["Opponent", "W-L", "Matches"].forEach(function (label) {
+      var th = document.createElement("th");
+      th.textContent = label;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    tableEl.appendChild(thead);
+
+    var body = document.createElement("tbody");
+    rivals.forEach(function (rival) {
+      var row = document.createElement("tr");
+      [rival.name, formatRecord(rival.wins, rival.losses), rival.wins + rival.losses].forEach(function (value) {
+        var td = document.createElement("td");
+        td.textContent = value;
+        row.appendChild(td);
+      });
+      body.appendChild(row);
+    });
+
+    if (!rivals.length) {
+      var emptyRow = document.createElement("tr");
+      var emptyCell = document.createElement("td");
+      emptyCell.colSpan = 3;
+      emptyCell.textContent = "No head-to-head records.";
+      emptyRow.appendChild(emptyCell);
+      body.appendChild(emptyRow);
+    }
+
+    tableEl.appendChild(body);
+    return tableEl;
+  }
+
+  function makePlayerDetail(player) {
+    var detail = document.createElement("div");
+    detail.className = "player-detail";
+
+    var chartBlock = document.createElement("section");
+    var chartHeading = document.createElement("h3");
+    chartHeading.textContent = "Rating History";
+    chartBlock.appendChild(chartHeading);
+    chartBlock.appendChild(makeRatingLine(player.ratingHistory, 400, 96, {
+      className: "rating-chart",
+      labels: true
+    }));
+
+    var h2hBlock = document.createElement("section");
+    var h2hHeading = document.createElement("h3");
+    h2hHeading.textContent = "Head-to-Head";
+    h2hBlock.appendChild(h2hHeading);
+    h2hBlock.appendChild(makeRivalsTable(player));
+
+    detail.appendChild(chartBlock);
+    detail.appendChild(h2hBlock);
+    return detail;
+  }
+
+  function comparisonRecord(first, second) {
+    var record = first.headToHead && first.headToHead[second.name];
+    return record || { wins: 0, losses: 0 };
+  }
+
+  function renderComparison() {
+    clear(comparisonPanel);
+    comparisonPanel.hidden = !compareFirst;
+    if (!compareFirst) return;
+
+    var header = document.createElement("div");
+    header.className = "comparison-header";
+
+    var title = document.createElement("h2");
+    title.textContent = compareSecond ? "Comparison" : "Compare";
+    header.appendChild(title);
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.className = "small-button";
+    close.textContent = "close";
+    close.addEventListener("click", function () {
+      compareFirst = null;
+      compareSecond = null;
+      renderComparison();
+      renderRows();
+    });
+    header.appendChild(close);
+    comparisonPanel.appendChild(header);
+
+    if (!compareSecond) {
+      var pending = document.createElement("p");
+      pending.textContent = compareFirst.name + " selected. Waiting for opponent.";
+      comparisonPanel.appendChild(pending);
+      return;
+    }
+
+    var record = comparisonRecord(compareFirst, compareSecond);
+    var summary = document.createElement("p");
+    summary.textContent = compareFirst.name + " is " + formatRecord(record.wins, record.losses) + " against " + compareSecond.name + ".";
+    comparisonPanel.appendChild(summary);
+
+    var grid = document.createElement("div");
+    grid.className = "comparison-grid";
+    [compareFirst, compareSecond].forEach(function (player) {
+      var section = document.createElement("section");
+      var heading = document.createElement("h3");
+      heading.textContent = player.name + " (" + player.currentRating + ")";
+      section.appendChild(heading);
+      section.appendChild(makeRatingLine(player.ratingHistory, 400, 96, {
+        className: "rating-chart",
+        labels: true
+      }));
+      grid.appendChild(section);
+    });
+    comparisonPanel.appendChild(grid);
+  }
+
+  function selectComparison(player) {
+    if (!compareFirst || compareSecond) {
+      compareFirst = player;
+      compareSecond = null;
+    } else if (compareFirst.name === player.name) {
+      compareFirst = null;
+    } else {
+      compareSecond = player;
+    }
+    renderComparison();
+    renderRows();
+  }
+
+  function makePlayerCell(player) {
+    var cell = document.createElement("td");
+    var name = document.createElement("span");
+    name.textContent = player.name;
+    cell.appendChild(name);
+
+    var button = document.createElement("button");
+    button.type = "button";
+    button.className = "vs-button";
+    if ((compareFirst && compareFirst.name === player.name) || (compareSecond && compareSecond.name === player.name)) {
+      button.className += " active";
+    }
+    button.textContent = "vs.";
+    button.addEventListener("click", function (event) {
+      event.stopPropagation();
+      selectComparison(player);
+    });
+    cell.appendChild(button);
+    return cell;
+  }
+
+  function renderRows() {
+    clear(tbody);
+    var visible = visiblePlayers();
+    updateCount(visible);
+
+    if (!visible.length) {
+      var emptyRow = document.createElement("tr");
+      var emptyCell = document.createElement("td");
+      emptyCell.colSpan = 6;
+      emptyCell.className = "leaderboard-empty";
+      emptyCell.textContent = "No players found.";
+      emptyRow.appendChild(emptyCell);
+      tbody.appendChild(emptyRow);
+      return;
+    }
+
+    visible.forEach(function (player) {
+      var row = document.createElement("tr");
+      row.className = "player-row";
+      if (expandedPlayer === player.name) row.className += " expanded";
+      row.addEventListener("click", function () {
+        expandedPlayer = expandedPlayer === player.name ? null : player.name;
+        renderRows();
+      });
+
+      var rank = document.createElement("td");
+      rank.textContent = players.indexOf(player) + 1;
+      row.appendChild(rank);
+      row.appendChild(makePlayerCell(player));
+
+      var rating = document.createElement("td");
+      rating.textContent = player.currentRating;
+      row.appendChild(rating);
+
+      var trend = document.createElement("td");
+      trend.appendChild(makeRatingLine(player.ratingHistory, 80, 20, {
+        className: "sparkline",
+        limit: 20
+      }));
+      row.appendChild(trend);
+
+      var sessions = document.createElement("td");
+      sessions.textContent = player.sessionsPlayed;
+      row.appendChild(sessions);
+
+      var record = document.createElement("td");
+      record.textContent = formatRecord(player.totalWins, player.totalLosses);
+      row.appendChild(record);
+
+      tbody.appendChild(row);
+
+      if (expandedPlayer === player.name) {
+        var detailRow = document.createElement("tr");
+        detailRow.className = "player-detail-row";
+        var detailCell = document.createElement("td");
+        detailCell.colSpan = 6;
+        detailCell.appendChild(makePlayerDetail(player));
+        detailRow.appendChild(detailCell);
+        tbody.appendChild(detailRow);
+      }
+    });
+  }
+
+  fetch("data/players.json")
+    .then(function (response) {
+      if (!response.ok) throw new Error("Could not load players.");
+      return response.json();
+    })
+    .then(function (data) {
+      players = data.players || [];
+      status.hidden = true;
+      tools.hidden = false;
+      table.hidden = false;
+      renderRows();
+    })
+    .catch(function () {
+      status.textContent = "Could not load the leaderboard. Try refreshing the page.";
+    });
+
+  searchInput.addEventListener("input", function () {
+    searchQuery = searchInput.value;
+    if (expandedPlayer && !visiblePlayers().some(function (player) { return player.name === expandedPlayer; })) {
+      expandedPlayer = null;
+    }
+    renderRows();
+  });
+}());
+</script>
+
+</body>
+</html>

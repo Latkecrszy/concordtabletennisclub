@@ -1,0 +1,76 @@
+name: Update Data and Deploy
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 11:30 PM Pacific during daylight saving time, after Monday and Wednesday sessions.
+    - cron: "30 6 * * 2,4"
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Refresh session list
+        run: npm run build:sessions
+
+      - name: Refresh parsed data
+        run: npm run build:data
+        env:
+          CTTC_FETCH_DELAY_MS: 250
+
+      - name: Commit generated data
+        run: |
+          if [ -n "$(git status --porcelain data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json
+            git commit -m "Update session data"
+            git push
+          fi
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare site artifact
+        run: |
+          mkdir -p _site
+          cp .nojekyll _site/
+          cp *.html style.css _site/
+          cp -R data _site/
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
