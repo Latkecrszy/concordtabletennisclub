@@ -40,12 +40,6 @@
 
   <h1>Concord Table Tennis Club</h1>
 
-  <div class="home-search">
-    <input id="home-search-input" class="home-search-input" type="search"
-           placeholder="Find a player..." autocomplete="off" aria-label="Find a player">
-    <ul id="home-search-list" class="home-search-list" hidden></ul>
-  </div>
-
   <div class="two-col">
     <div>
       <h2 style="margin-top:0">Hours</h2>
@@ -187,66 +181,6 @@
       el.hidden = false;
     })
     .catch(function () {});
-
-  // Player search
-  (function () {
-    var input = document.getElementById("home-search-input");
-    var list = document.getElementById("home-search-list");
-    var names = null;
-    var activeIdx = -1;
-
-    function loadNames(cb) {
-      if (names) { cb(); return; }
-      fetch("data/player-index.json")
-        .then(function (r) { return r.json(); })
-        .then(function (data) { names = data; cb(); })
-        .catch(function () {});
-    }
-
-    function showSuggestions(q) {
-      if (!names || q.length < 2) { list.hidden = true; return; }
-      var lq = q.toLowerCase();
-      var matches = names.filter(function (n) { return n.toLowerCase().indexOf(lq) !== -1; }).slice(0, 8);
-      if (!matches.length) { list.hidden = true; return; }
-      list.innerHTML = "";
-      activeIdx = -1;
-      matches.forEach(function (name) {
-        var li = document.createElement("li");
-        li.textContent = name;
-        li.addEventListener("mousedown", function (e) {
-          e.preventDefault();
-          window.location.href = "player.html?name=" + encodeURIComponent(name);
-        });
-        list.appendChild(li);
-      });
-      list.hidden = false;
-    }
-
-    input.addEventListener("input", function () {
-      loadNames(function () { showSuggestions(input.value.trim()); });
-    });
-
-    input.addEventListener("keydown", function (e) {
-      var items = list.querySelectorAll("li");
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        activeIdx = Math.min(activeIdx + 1, items.length - 1);
-        items.forEach(function (li, i) { li.classList.toggle("active", i === activeIdx); });
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        activeIdx = Math.max(activeIdx - 1, -1);
-        items.forEach(function (li, i) { li.classList.toggle("active", i === activeIdx); });
-      } else if (e.key === "Enter") {
-        e.preventDefault();
-        var target = activeIdx >= 0 ? items[activeIdx] : items[0];
-        if (target) window.location.href = "player.html?name=" + encodeURIComponent(target.textContent);
-      } else if (e.key === "Escape") {
-        list.hidden = true;
-      }
-    });
-
-    input.addEventListener("blur", function () { setTimeout(function () { list.hidden = true; }, 120); });
-  }());
 
   // Latest session results
   fetch("data/site-status.json")
