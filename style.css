@@ -745,10 +745,6 @@ footer {
     align-items: center;
   }
 
-  .latest-results-groups {
-    grid-template-columns: 1fr;
-  }
-
   .session-detail-body {
     margin-left: 18px;
   }
@@ -823,9 +819,15 @@ footer {
 
 .latest-results-groups {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 24px 40px;
   margin: 16px 0;
+}
+
+@media (min-width: 641px) {
+  .latest-results-groups {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .latest-results-link {
