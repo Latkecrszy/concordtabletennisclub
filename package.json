@@ -7,7 +7,10 @@
     "start": "node server.js",
     "build:sessions": "node scripts/build-sessions.js > data/sessions.json",
     "build:data": "node scripts/fetch-and-parse.js",
-    "refresh:data": "npm run build:sessions && npm run build:data"
+    "build:roster": "node -e \"const p=require('./data/players.json'),r={},fs=require('fs');p.players.forEach(pl=>(pl.ratingHistory||[]).forEach(e=>{if(!r[e.date])r[e.date]=[];r[e.date].push(pl.name)}));fs.writeFileSync('./data/session-roster.json',JSON.stringify(r));console.log('Roster built:',Object.keys(r).length,'sessions');\"",
+    "check:data": "node scripts/check-data.js",
+    "sync:nav": "node scripts/sync-nav.js",
+    "refresh:data": "npm run build:sessions && npm run build:data && npm run build:roster && npm run check:data"
   },
   "devDependencies": {
     "cheerio": "^1.0.0"

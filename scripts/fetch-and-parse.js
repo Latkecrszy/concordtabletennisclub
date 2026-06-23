@@ -462,10 +462,16 @@ async function main() {
     await writeJson(path.join(DATA_DIR, 'session-details-' + year + '.json'), yearSessions);
   }
 
+  const latestSessionDate = details.length > 0 ? details[0].date : null;
+  const generatedAt = new Date().toISOString().slice(0, 10);
+
   await writeJson(path.join(DATA_DIR, 'players.json'), {
-    generatedAt: new Date().toISOString().slice(0, 10),
+    generatedAt,
+    latestSessionDate,
     players: buildPlayers(details)
   });
+
+  await writeJson(path.join(DATA_DIR, 'site-status.json'), { generatedAt, latestSessionDate });
 
   if (failures.length) {
     process.stderr.write('Completed with ' + failures.length + ' unavailable session report(s).\n');

@@ -11,16 +11,18 @@
 <header>
   <div class="header-inner">
     <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
-    <nav>
+            <nav>
       <a href="index.html">Home</a>
+      <a href="firstvisit.html">First Visit</a>
       <a href="about.html">About</a>
       <a href="roundrobins.html" class="active">Round Robins</a>
       <a href="leaderboard.html">Leaderboard</a>
+      <a href="halloffame.html">Hall of Fame</a>
       <a href="membership.html">Membership</a>
       <a href="coaching.html">Coaching</a>
       <a href="rules.html">Rules</a>
       <a href="pictures.html">Pictures</a>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform">Contact</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform" target="_blank" rel="noopener">Contact</a>
     </nav>
   </div>
 </header>
@@ -55,10 +57,30 @@
   </table>
 
   <h2>Archive</h2>
+  <p id="archive-status" class="data-status" hidden></p>
+
+  <div class="archive-filters">
+    <div class="archive-filter-row">
+      <span class="archive-filter-label">Night</span>
+      <div class="archive-filter-btns" id="day-filter-btns">
+        <button class="archive-filter-btn active" data-day="">All</button>
+        <button class="archive-filter-btn" data-day="Monday">Monday</button>
+        <button class="archive-filter-btn" data-day="Wednesday">Wednesday</button>
+      </div>
+    </div>
+    <div class="archive-filter-row">
+      <label class="archive-filter-label" for="player-search-input">Player</label>
+      <input id="player-search-input" class="archive-player-search" type="search"
+             placeholder="Find sessions with..." autocomplete="off">
+    </div>
+  </div>
+  <p id="archive-count" class="archive-count"></p>
 
   <div id="archive">
     <p id="archive-loading">Loading sessions...</p>
   </div>
+
+  <ul id="archive-filter-results" class="archive-filtered-list" hidden></ul>
 
 </main>
 
@@ -74,6 +96,12 @@
   ];
   var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   var yearDetailsCache = {};
+  var rosterCache = null;
+  var summaries = null;
+  var activeDayFilter = "";
+  var playerQuery = "";
+  var playerQueryTimer = null;
+  var allSessions = [];
 
   function formatDate(dateStr) {
     var parts = dateStr.split("-");
@@ -82,6 +110,11 @@
     var d = parseInt(parts[2]);
     var dt = new Date(y, m - 1, d);
     return MONTHS[m - 1] + " " + d + " (" + DAYS[dt.getDay()] + ")";
+  }
+
+  function dayOfWeek(dateStr) {
+    var parts = dateStr.split("-");
+    return DAYS[new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2])).getDay()];
   }
 
   function rawReportUrl(fileId) {
@@ -132,7 +165,7 @@
 
     var thead = document.createElement("thead");
     var headRow = document.createElement("tr");
-    ["Name", "W-L", "Adj", "Rating"].forEach(function (label) {
+    ["Name", "Matches", "Games", "Adj", "Rating"].forEach(function (label) {
       var th = document.createElement("th");
       th.textContent = label;
       headRow.appendChild(th);
@@ -143,12 +176,21 @@
     var tbody = document.createElement("tbody");
     group.players.forEach(function (player) {
       var row = document.createElement("tr");
-      [
-        player.name,
-        groupRecord(player),
-        signed(player.ratingAdj),
-        player.ratingAfter
-      ].forEach(function (value) {
+
+      var nameCell = document.createElement("td");
+      var nameLink = document.createElement("a");
+      nameLink.href = "player.html?name=" + encodeURIComponent(player.name);
+      nameLink.textContent = player.name;
+      nameCell.appendChild(nameLink);
+      row.appendChild(nameCell);
+
+      var games = "-";
+      if (!player.matchesUnavailable && player.matches && player.matches.length) {
+        var gw = 0, gl = 0;
+        player.matches.forEach(function (m) { gw += (m.gamesWon || 0); gl += (m.gamesLost || 0); });
+        games = gw + "-" + gl;
+      }
+      [groupRecord(player), games, signed(player.ratingAdj), player.ratingAfter].forEach(function (value) {
         var td = document.createElement("td");
         td.textContent = value;
         row.appendChild(td);
@@ -201,13 +243,158 @@
       });
   }
 
-  fetch("data/sessions.json")
+  function makeSessionElement(s) {
+    var year = parseInt(s.date.split("-")[0]);
+    var li = document.createElement("li");
+    var sDetails = document.createElement("details");
+    sDetails.className = "archive-session";
+    sDetails.id = "s-" + s.date;
+
+    var sSummary = document.createElement("summary");
+    var info = summaries && summaries[s.date];
+    var label = formatDate(s.date);
+    if (info) {
+      label += " · " + info.players + " players";
+      if (info.topGain > 0) label += " · top gain +" + info.topGain;
+    }
+    sSummary.textContent = label;
+    sDetails.appendChild(sSummary);
+
+    var body = document.createElement("div");
+    body.className = "session-detail-body";
+    sDetails.appendChild(body);
+
+    sDetails.addEventListener("toggle", function () {
+      renderSessionWhenOpened(sDetails, body, year, s);
+    });
+
+    li.appendChild(sDetails);
+    return li;
+  }
+
+  function updateCount(showing, total) {
+    var countEl = document.getElementById("archive-count");
+    if (!countEl) return;
+    if (showing === total) {
+      countEl.textContent = total + " sessions";
+    } else {
+      countEl.textContent = "Showing " + showing + " of " + total + " sessions";
+    }
+  }
+
+  function matchesFilters(s, roster) {
+    if (activeDayFilter && dayOfWeek(s.date) !== activeDayFilter) return false;
+    if (playerQuery) {
+      var players = roster ? (roster[s.date] || []) : [];
+      var q = playerQuery.toLowerCase();
+      if (!players.some(function (name) { return name.toLowerCase().indexOf(q) !== -1; })) return false;
+    }
+    return true;
+  }
+
+  function applyFilters() {
+    var hasFilter = activeDayFilter || playerQuery;
+    var archiveEl = document.getElementById("archive");
+    var resultsEl = document.getElementById("archive-filter-results");
+
+    archiveEl.hidden = !!hasFilter;
+    resultsEl.hidden = !hasFilter;
+
+    if (!hasFilter) {
+      updateCount(allSessions.length, allSessions.length);
+      return;
+    }
+
+    function doFilter(roster) {
+      var matching = allSessions.filter(function (s) { return matchesFilters(s, roster); });
+      updateCount(matching.length, allSessions.length);
+      resultsEl.innerHTML = "";
+      if (!matching.length) {
+        var msg = document.createElement("li");
+        msg.className = "archive-no-results";
+        msg.textContent = "No sessions found.";
+        resultsEl.appendChild(msg);
+        return;
+      }
+      matching.forEach(function (s) {
+        resultsEl.appendChild(makeSessionElement(s));
+      });
+    }
+
+    if (playerQuery && !rosterCache) {
+      resultsEl.innerHTML = "<li class=\"archive-no-results\">Loading...</li>";
+      fetch("data/session-roster.json")
+        .then(function (r) { return r.json(); })
+        .then(function (roster) {
+          rosterCache = roster;
+          doFilter(roster);
+        })
+        .catch(function () {
+          resultsEl.innerHTML = "<li class=\"archive-no-results\">Could not load player index.</li>";
+        });
+    } else {
+      doFilter(rosterCache);
+    }
+  }
+
+  function wireFilterControls() {
+    document.getElementById("day-filter-btns").addEventListener("click", function (e) {
+      var btn = e.target.closest(".archive-filter-btn");
+      if (!btn) return;
+      document.querySelectorAll("#day-filter-btns .archive-filter-btn").forEach(function (b) {
+        b.classList.remove("active");
+      });
+      btn.classList.add("active");
+      activeDayFilter = btn.dataset.day || "";
+      applyFilters();
+    });
+
+    document.getElementById("player-search-input").addEventListener("input", function (e) {
+      clearTimeout(playerQueryTimer);
+      var val = e.target.value;
+      playerQueryTimer = setTimeout(function () {
+        playerQuery = val.trim();
+        applyFilters();
+      }, 280);
+    });
+  }
+
+  function scrollToHash() {
+    var hash = window.location.hash.replace("#", "");
+    if (!hash.match(/^s-\d{4}-\d{2}-\d{2}$/)) return;
+    var target = document.getElementById(hash);
+    if (!target) return;
+    var el = target;
+    while (el && el.id !== "archive") {
+      if (el.tagName === "DETAILS") el.open = true;
+      el = el.parentElement;
+    }
+    setTimeout(function () { target.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80);
+  }
+
+  fetch("data/site-status.json")
     .then(function (r) { return r.json(); })
-    .then(function (sessions) {
+    .then(function (siteStatus) {
+      var el = document.getElementById("archive-status");
+      if (!el || !siteStatus.latestSessionDate) return;
+      var lp = siteStatus.latestSessionDate.split("-");
+      var lDay = DAYS[new Date(parseInt(lp[0]), parseInt(lp[1]) - 1, parseInt(lp[2])).getDay()];
+      el.textContent = "Latest session: " + MONTHS[parseInt(lp[1]) - 1] + " " + parseInt(lp[2]) + ", " + lp[0] + " (" + lDay + ")";
+      el.hidden = false;
+    })
+    .catch(function () {});
+
+  Promise.all([
+    fetch("data/sessions.json").then(function (r) { return r.json(); }),
+    fetch("data/session-summaries.json").then(function (r) { return r.json(); }).catch(function () { return null; })
+  ]).then(function (results) {
+    var sessions = results[0];
+    summaries = results[1];
+    allSessions = sessions;
+
       var container = document.getElementById("archive");
       container.innerHTML = "";
 
-      // Group by year then month
       var byYear = {};
       sessions.forEach(function (s) {
         var parts = s.date.split("-");
@@ -247,24 +434,7 @@
           var items = byYear[year][mon].slice().sort(function (a, b) { return b.day - a.day; });
 
           items.forEach(function (s) {
-            var li = document.createElement("li");
-            var sDetails = document.createElement("details");
-            sDetails.className = "archive-session";
-
-            var sSummary = document.createElement("summary");
-            sSummary.textContent = formatDate(s.date);
-            sDetails.appendChild(sSummary);
-
-            var body = document.createElement("div");
-            body.className = "session-detail-body";
-            sDetails.appendChild(body);
-
-            sDetails.addEventListener("toggle", function () {
-              renderSessionWhenOpened(sDetails, body, year, s);
-            });
-
-            li.appendChild(sDetails);
-            ul.appendChild(li);
+            ul.appendChild(makeSessionElement(s));
           });
 
           mDetails.appendChild(ul);
@@ -274,11 +444,14 @@
         container.appendChild(yDetails);
         if (yDetails.open) loadYearDetails(year).catch(function () {});
       });
-    })
-    .catch(function () {
-      document.getElementById("archive").innerHTML =
-        "<p>Could not load the archive. Try refreshing the page.</p>";
-    });
+
+      updateCount(allSessions.length, allSessions.length);
+      wireFilterControls();
+      scrollToHash();
+  }).catch(function () {
+    document.getElementById("archive").innerHTML =
+      "<p>Could not load the archive. Try refreshing the page.</p>";
+  });
 }());
 </script>
 

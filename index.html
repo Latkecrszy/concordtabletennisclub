@@ -11,16 +11,18 @@
 <header>
   <div class="header-inner">
     <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
-    <nav>
+            <nav>
       <a href="index.html" class="active">Home</a>
+      <a href="firstvisit.html">First Visit</a>
       <a href="about.html">About</a>
       <a href="roundrobins.html">Round Robins</a>
       <a href="leaderboard.html">Leaderboard</a>
+      <a href="halloffame.html">Hall of Fame</a>
       <a href="membership.html">Membership</a>
       <a href="coaching.html">Coaching</a>
       <a href="rules.html">Rules</a>
       <a href="pictures.html">Pictures</a>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform">Contact</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform" target="_blank" rel="noopener">Contact</a>
     </nav>
   </div>
 </header>
@@ -60,6 +62,12 @@
     </div>
   </div>
 
+  <section id="latest-results" hidden>
+    <h2>Latest Session <span id="latest-results-date" class="latest-results-date"></span></h2>
+    <div id="latest-results-groups" class="latest-results-groups"></div>
+    <p class="latest-results-link"><a id="latest-results-archive-link" href="roundrobins.html">Full results and archive</a></p>
+  </section>
+
   <h2>How a night works</h2>
 
   <h3>Competitive round robin</h3>
@@ -86,6 +94,100 @@
 <footer>
   Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
 </footer>
+
+<script>
+(function () {
+  var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  function formatDate(dateStr) {
+    var p = dateStr.split("-");
+    var dt = new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2]));
+    return MONTHS[parseInt(p[1]) - 1] + " " + parseInt(p[2]) + " (" + DAYS[dt.getDay()] + ")";
+  }
+
+  function signed(n) {
+    return n > 0 ? "+" + n : String(n);
+  }
+
+  function renderGroups(groups, container) {
+    groups.forEach(function (group) {
+      var section = document.createElement("section");
+      section.className = "session-group";
+
+      var heading = document.createElement("h3");
+      heading.textContent = group.name;
+      section.appendChild(heading);
+
+      var table = document.createElement("table");
+      table.className = "session-group-table";
+
+      var thead = document.createElement("thead");
+      var headRow = document.createElement("tr");
+      ["Name", "Matches", "Games", "Adj", "Rating"].forEach(function (label) {
+        var th = document.createElement("th");
+        th.textContent = label;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      var tbody = document.createElement("tbody");
+      group.players.forEach(function (player) {
+        var row = document.createElement("tr");
+
+        var nameCell = document.createElement("td");
+        var link = document.createElement("a");
+        link.href = "player.html?name=" + encodeURIComponent(player.name);
+        link.textContent = player.name;
+        nameCell.appendChild(link);
+        row.appendChild(nameCell);
+
+        var matches = (player.wins !== null && player.losses !== null) ? player.wins + "-" + player.losses : "-";
+        var games = "-";
+        if (!player.matchesUnavailable && player.matches && player.matches.length) {
+          var gw = 0, gl = 0;
+          player.matches.forEach(function (m) { gw += (m.gamesWon || 0); gl += (m.gamesLost || 0); });
+          games = gw + "-" + gl;
+        }
+        [matches, games, signed(player.ratingAdj || 0), player.ratingAfter].forEach(function (val) {
+          var td = document.createElement("td");
+          td.textContent = val;
+          row.appendChild(td);
+        });
+
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+      section.appendChild(table);
+      container.appendChild(section);
+    });
+  }
+
+  fetch("data/site-status.json")
+    .then(function (r) { return r.json(); })
+    .then(function (status) {
+      if (!status.latestSessionDate) return;
+      var date = status.latestSessionDate;
+      var year = date.split("-")[0];
+      return fetch("data/session-details-" + year + ".json")
+        .then(function (r) { return r.json(); })
+        .then(function (sessions) {
+          var session = sessions.find(function (s) { return s.date === date; });
+          if (!session || !session.groups || !session.groups.length) return;
+
+          document.getElementById("latest-results-date").textContent = formatDate(date);
+          renderGroups(session.groups, document.getElementById("latest-results-groups"));
+
+          var archiveLink = document.getElementById("latest-results-archive-link");
+          archiveLink.href = "roundrobins.html#s-" + date;
+
+          document.getElementById("latest-results").hidden = false;
+        });
+    })
+    .catch(function () {});
+}());
+</script>
 
 </body>
 </html>

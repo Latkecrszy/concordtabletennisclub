@@ -1,0 +1,21 @@
+{
+  "generatedAt": "2026-06-23",
+  "dataBuiltAt": "2026-06-22",
+  "latestSessionDate": "2026-06-17",
+  "sessionsTotal": 240,
+  "sessionsParsed": 240,
+  "sessionsFailed": 0,
+  "sessionsNoGroups": 0,
+  "groupsTotal": 1199,
+  "uniquePlayers": 366,
+  "matchesUnavailableCount": 46,
+  "suspiciousRatings": [
+    {
+      "date": "2025-12-10",
+      "group": "Group 4",
+      "player": "Susie Epstein",
+      "issue": "rating out of range: 0"
+    }
+  ],
+  "failedSessions": []
+}

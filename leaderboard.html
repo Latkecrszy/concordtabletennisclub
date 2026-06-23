@@ -11,16 +11,18 @@
 <header>
   <div class="header-inner">
     <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
-    <nav>
+            <nav>
       <a href="index.html">Home</a>
+      <a href="firstvisit.html">First Visit</a>
       <a href="about.html">About</a>
       <a href="roundrobins.html">Round Robins</a>
       <a href="leaderboard.html" class="active">Leaderboard</a>
+      <a href="halloffame.html">Hall of Fame</a>
       <a href="membership.html">Membership</a>
       <a href="coaching.html">Coaching</a>
       <a href="rules.html">Rules</a>
       <a href="pictures.html">Pictures</a>
-      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform">Contact</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform" target="_blank" rel="noopener">Contact</a>
     </nav>
   </div>
 </header>
@@ -35,11 +37,18 @@
 
   <div id="leaderboard-status">Loading leaderboard...</div>
 
+  <div id="leaderboard-tabs" class="leaderboard-tabs" hidden>
+    <button class="leaderboard-tab active" data-tab="rankings">Rankings</button>
+    <button class="leaderboard-tab" data-tab="improved">Most Improved</button>
+  </div>
+
   <div id="leaderboard-tools" class="leaderboard-tools" hidden>
     <label class="visually-hidden" for="leaderboard-search">Search players</label>
     <input id="leaderboard-search" class="leaderboard-search" type="search" placeholder="Search players" autocomplete="off">
     <div id="leaderboard-count" class="leaderboard-count"></div>
   </div>
+
+  <p id="data-status" class="data-status" hidden></p>
 
   <table class="leaderboard-table" hidden>
     <thead>
@@ -55,6 +64,27 @@
     <tbody id="leaderboard-body"></tbody>
   </table>
 
+  <div id="improved-panel" hidden>
+    <div class="improved-period-btns" id="improved-period-btns">
+      <button class="archive-filter-btn active" data-days="30">30 days</button>
+      <button class="archive-filter-btn" data-days="90">90 days</button>
+      <button class="archive-filter-btn" data-days="365">This year</button>
+    </div>
+    <table class="leaderboard-table improved-table">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Player</th>
+          <th>Gain</th>
+          <th>Was</th>
+          <th>Now</th>
+          <th>Sessions</th>
+        </tr>
+      </thead>
+      <tbody id="improved-body"></tbody>
+    </table>
+  </div>
+
 </main>
 
 <footer>
@@ -69,14 +99,19 @@
   var expandedPlayer = null;
   var compareFirst = null;
   var compareSecond = null;
+  var activeTab = "rankings";
+  var improvedDays = 30;
 
   var status = document.getElementById("leaderboard-status");
+  var tabs = document.getElementById("leaderboard-tabs");
   var tools = document.getElementById("leaderboard-tools");
   var searchInput = document.getElementById("leaderboard-search");
   var count = document.getElementById("leaderboard-count");
   var table = document.querySelector(".leaderboard-table");
   var tbody = document.getElementById("leaderboard-body");
   var comparisonPanel = document.getElementById("comparison-panel");
+  var improvedPanel = document.getElementById("improved-panel");
+  var improvedBody = document.getElementById("improved-body");
 
   function clear(node) {
     while (node.firstChild) node.removeChild(node.firstChild);
@@ -86,10 +121,25 @@
     return wins + "-" + losses;
   }
 
+  var MONTHS_LONG = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DAYS_LONG = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
   function formatDate(date) {
     var parts = String(date || "").split("-");
     if (parts.length !== 3) return "";
     return Number(parts[1]) + "/" + Number(parts[2]) + "/" + parts[0].slice(2);
+  }
+
+  function formatLongDate(dateStr) {
+    var parts = String(dateStr || "").split("-");
+    if (parts.length !== 3) return dateStr;
+    return MONTHS_LONG[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]) + ", " + parts[0];
+  }
+
+  function dayName(dateStr) {
+    var p = String(dateStr || "").split("-");
+    if (p.length !== 3) return "";
+    return DAYS_LONG[new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2])).getDay()];
   }
 
   function visiblePlayers() {
@@ -343,9 +393,10 @@
 
   function makePlayerCell(player) {
     var cell = document.createElement("td");
-    var name = document.createElement("span");
-    name.textContent = player.name;
-    cell.appendChild(name);
+    var link = document.createElement("a");
+    link.href = "player.html?name=" + encodeURIComponent(player.name);
+    link.textContent = player.name;
+    cell.appendChild(link);
 
     var button = document.createElement("button");
     button.type = "button";
@@ -382,7 +433,8 @@
       var row = document.createElement("tr");
       row.className = "player-row";
       if (expandedPlayer === player.name) row.className += " expanded";
-      row.addEventListener("click", function () {
+      row.addEventListener("click", function (event) {
+        if (event.target.closest && event.target.closest("a")) return;
         expandedPlayer = expandedPlayer === player.name ? null : player.name;
         renderRows();
       });
@@ -425,6 +477,84 @@
     });
   }
 
+  function ratingAtCutoff(history, cutoffDate) {
+    for (var i = history.length - 1; i >= 0; i--) {
+      if (history[i].date <= cutoffDate) return history[i].rating;
+    }
+    return null;
+  }
+
+  function renderImproved() {
+    var cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - improvedDays);
+    var cutoffStr = cutoff.toISOString().slice(0, 10);
+
+    var rows = [];
+    players.forEach(function (player) {
+      if (!player.ratingHistory || !player.ratingHistory.length) return;
+      var was = ratingAtCutoff(player.ratingHistory, cutoffStr);
+      if (was === null) return;
+      var gain = player.currentRating - was;
+      var sessionsSince = player.ratingHistory.filter(function (e) { return e.date > cutoffStr; }).length;
+      if (sessionsSince === 0) return;
+      rows.push({ player: player, gain: gain, was: was, now: player.currentRating, sessions: sessionsSince });
+    });
+
+    rows.sort(function (a, b) { return b.gain - a.gain || a.player.name.localeCompare(b.player.name); });
+
+    clear(improvedBody);
+    rows.forEach(function (r, i) {
+      var row = document.createElement("tr");
+
+      var rankCell = document.createElement("td");
+      rankCell.textContent = i + 1;
+      row.appendChild(rankCell);
+
+      var nameCell = document.createElement("td");
+      var link = document.createElement("a");
+      link.href = "player.html?name=" + encodeURIComponent(r.player.name);
+      link.textContent = r.player.name;
+      nameCell.appendChild(link);
+      row.appendChild(nameCell);
+
+      var gainCell = document.createElement("td");
+      gainCell.textContent = (r.gain > 0 ? "+" : "") + r.gain;
+      gainCell.className = r.gain > 0 ? "improved-pos" : r.gain < 0 ? "improved-neg" : "";
+      row.appendChild(gainCell);
+
+      [r.was, r.now, r.sessions].forEach(function (val) {
+        var td = document.createElement("td");
+        td.textContent = val;
+        row.appendChild(td);
+      });
+
+      improvedBody.appendChild(row);
+    });
+
+    if (!rows.length) {
+      var emptyRow = document.createElement("tr");
+      var emptyCell = document.createElement("td");
+      emptyCell.colSpan = 6;
+      emptyCell.className = "leaderboard-empty";
+      emptyCell.textContent = "No players with sessions in this period.";
+      emptyRow.appendChild(emptyCell);
+      improvedBody.appendChild(emptyRow);
+    }
+  }
+
+  function switchTab(tab) {
+    activeTab = tab;
+    document.querySelectorAll(".leaderboard-tab").forEach(function (btn) {
+      btn.classList.toggle("active", btn.dataset.tab === tab);
+    });
+    var isRankings = tab === "rankings";
+    tools.hidden = !isRankings;
+    table.hidden = !isRankings;
+    comparisonPanel.hidden = !isRankings || !compareFirst;
+    improvedPanel.hidden = isRankings;
+    if (!isRankings) renderImproved();
+  }
+
   fetch("data/players.json")
     .then(function (response) {
       if (!response.ok) throw new Error("Could not load players.");
@@ -433,8 +563,32 @@
     .then(function (data) {
       players = data.players || [];
       status.hidden = true;
+      tabs.hidden = false;
       tools.hidden = false;
       table.hidden = false;
+
+      var dataStatusEl = document.getElementById("data-status");
+      if (dataStatusEl && data.latestSessionDate) {
+        dataStatusEl.textContent = "Latest session: " + formatLongDate(data.latestSessionDate) + " (" + dayName(data.latestSessionDate) + ")";
+        dataStatusEl.hidden = false;
+      }
+
+      tabs.addEventListener("click", function (e) {
+        var btn = e.target.closest(".leaderboard-tab");
+        if (btn) switchTab(btn.dataset.tab);
+      });
+
+      document.getElementById("improved-period-btns").addEventListener("click", function (e) {
+        var btn = e.target.closest(".archive-filter-btn");
+        if (!btn) return;
+        document.querySelectorAll("#improved-period-btns .archive-filter-btn").forEach(function (b) {
+          b.classList.remove("active");
+        });
+        btn.classList.add("active");
+        improvedDays = parseInt(btn.dataset.days);
+        renderImproved();
+      });
+
       renderRows();
     })
     .catch(function () {

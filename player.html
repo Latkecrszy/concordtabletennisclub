@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Player Profile - Concord Table Tennis Club</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
+            <nav>
+      <a href="index.html">Home</a>
+      <a href="firstvisit.html">First Visit</a>
+      <a href="about.html">About</a>
+      <a href="roundrobins.html">Round Robins</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="halloffame.html">Hall of Fame</a>
+      <a href="membership.html">Membership</a>
+      <a href="coaching.html">Coaching</a>
+      <a href="rules.html">Rules</a>
+      <a href="pictures.html">Pictures</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform" target="_blank" rel="noopener">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main id="profile-main">
+  <p id="profile-status" style="color:var(--muted);font-size:0.9rem">Loading...</p>
+</main>
+
+<footer>
+  Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
+</footer>
+
+<script>
+(function () {
+  var SVG_NS = "http://www.w3.org/2000/svg";
+
+  var params = new URLSearchParams(window.location.search);
+  var playerName = params.get("name") || "";
+  var profileMain = document.getElementById("profile-main");
+  var profileStatus = document.getElementById("profile-status");
+
+  if (!playerName) {
+    profileStatus.textContent = "No player specified.";
+    return;
+  }
+
+  document.title = playerName + " - Concord Table Tennis Club";
+
+  function createSvg(tag) {
+    return document.createElementNS(SVG_NS, tag);
+  }
+
+  function formatShortDate(dateStr) {
+    var parts = String(dateStr || "").split("-");
+    if (parts.length !== 3) return "";
+    return Number(parts[1]) + "/" + Number(parts[2]) + "/" + parts[0].slice(2);
+  }
+
+  function formatLongDate(dateStr) {
+    var MONTHS = ["January","February","March","April","May","June",
+                  "July","August","September","October","November","December"];
+    var parts = String(dateStr || "").split("-");
+    if (parts.length !== 3) return dateStr;
+    return MONTHS[parseInt(parts[1]) - 1] + " " + parseInt(parts[2]) + ", " + parts[0];
+  }
+
+  function signed(n) {
+    return n > 0 ? "+" + n : String(n);
+  }
+
+  function ratingBounds(history) {
+    var ratings = history.map(function (item) { return item.rating; });
+    var min = Math.min.apply(null, ratings);
+    var max = Math.max.apply(null, ratings);
+    if (!Number.isFinite(min) || !Number.isFinite(max)) { min = 0; max = 1; }
+    if (min === max) { min -= 1; max += 1; }
+    return { min: min, max: max };
+  }
+
+  function makeRatingChart(history) {
+    var width = 600;
+    var height = 120;
+    var padLeft = 38;
+    var padRight = 10;
+    var padTop = 8;
+    var padBottom = 24;
+
+    var svg = createSvg("svg");
+    svg.setAttribute("viewBox", "0 0 " + width + " " + height);
+    svg.setAttribute("class", "rating-chart-full");
+    svg.setAttribute("aria-hidden", "true");
+
+    if (!history.length) return svg;
+
+    var bounds = ratingBounds(history);
+    var xMax = Math.max(1, history.length - 1);
+
+    var points = history.map(function (item, i) {
+      var x = padLeft + ((width - padLeft - padRight) * i / xMax);
+      var y = padTop + ((height - padTop - padBottom) * (bounds.max - item.rating) / (bounds.max - bounds.min));
+      return x.toFixed(1) + "," + y.toFixed(1);
+    }).join(" ");
+
+    var line = createSvg("polyline");
+    line.setAttribute("points", points);
+    line.setAttribute("fill", "none");
+    line.setAttribute("stroke", "#8B1A1A");
+    line.setAttribute("stroke-width", "2");
+    line.setAttribute("stroke-linecap", "round");
+    line.setAttribute("stroke-linejoin", "round");
+    svg.appendChild(line);
+
+    var axis = createSvg("line");
+    axis.setAttribute("x1", padLeft);
+    axis.setAttribute("x2", width - padRight);
+    axis.setAttribute("y1", height - padBottom + 6);
+    axis.setAttribute("y2", height - padBottom + 6);
+    axis.setAttribute("stroke", "#ddd8d0");
+    svg.appendChild(axis);
+
+    var minLabel = createSvg("text");
+    minLabel.setAttribute("x", 0);
+    minLabel.setAttribute("y", height - padBottom + 4);
+    minLabel.textContent = Math.round(bounds.min);
+    svg.appendChild(minLabel);
+
+    var maxLabel = createSvg("text");
+    maxLabel.setAttribute("x", 0);
+    maxLabel.setAttribute("y", padTop + 4);
+    maxLabel.textContent = Math.round(bounds.max);
+    svg.appendChild(maxLabel);
+
+    var firstDate = createSvg("text");
+    firstDate.setAttribute("x", padLeft);
+    firstDate.setAttribute("y", height - 4);
+    firstDate.textContent = formatShortDate(history[0].date);
+    svg.appendChild(firstDate);
+
+    var lastDate = createSvg("text");
+    lastDate.setAttribute("x", width - padRight);
+    lastDate.setAttribute("y", height - 4);
+    lastDate.setAttribute("text-anchor", "end");
+    lastDate.textContent = formatShortDate(history[history.length - 1].date);
+    svg.appendChild(lastDate);
+
+    return svg;
+  }
+
+  function makeRecentTable(history) {
+    var recent = history.slice().reverse().slice(0, 20);
+    var table = document.createElement("table");
+    table.className = "profile-sessions-table";
+
+    var thead = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    ["Date", "Rating", "Change"].forEach(function (label) {
+      var th = document.createElement("th");
+      th.textContent = label;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    recent.forEach(function (entry, i) {
+      var prevEntry = recent[i + 1];
+      var delta = prevEntry ? entry.rating - prevEntry.rating : null;
+      var row = document.createElement("tr");
+
+      var dateCell = document.createElement("td");
+      dateCell.textContent = formatLongDate(entry.date);
+      row.appendChild(dateCell);
+
+      var ratingCell = document.createElement("td");
+      ratingCell.textContent = entry.rating;
+      row.appendChild(ratingCell);
+
+      var adjCell = document.createElement("td");
+      adjCell.className = "profile-adj";
+      if (delta !== null) {
+        adjCell.textContent = signed(delta);
+        adjCell.dataset.sign = delta > 0 ? "pos" : delta < 0 ? "neg" : "zero";
+      } else {
+        adjCell.textContent = "-";
+      }
+      row.appendChild(adjCell);
+
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    return table;
+  }
+
+  function makeH2HTable(headToHead) {
+    var rivals = Object.keys(headToHead || {}).map(function (name) {
+      var r = headToHead[name];
+      return { name: name, wins: r.wins, losses: r.losses, total: r.wins + r.losses };
+    }).sort(function (a, b) {
+      return (b.total - a.total) || a.name.localeCompare(b.name);
+    });
+
+    var table = document.createElement("table");
+    table.className = "profile-h2h-table";
+
+    var thead = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    ["Opponent", "W-L", "Matches"].forEach(function (label) {
+      var th = document.createElement("th");
+      th.textContent = label;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    rivals.forEach(function (rival) {
+      var row = document.createElement("tr");
+
+      var nameCell = document.createElement("td");
+      var link = document.createElement("a");
+      link.href = "player.html?name=" + encodeURIComponent(rival.name);
+      link.textContent = rival.name;
+      nameCell.appendChild(link);
+      row.appendChild(nameCell);
+
+      var recordCell = document.createElement("td");
+      recordCell.textContent = rival.wins + "-" + rival.losses;
+      row.appendChild(recordCell);
+
+      var totalCell = document.createElement("td");
+      totalCell.textContent = rival.total;
+      row.appendChild(totalCell);
+
+      tbody.appendChild(row);
+    });
+
+    if (!rivals.length) {
+      var emptyRow = document.createElement("tr");
+      var emptyCell = document.createElement("td");
+      emptyCell.colSpan = 3;
+      emptyCell.textContent = "No head-to-head records.";
+      emptyRow.appendChild(emptyCell);
+      tbody.appendChild(emptyRow);
+    }
+
+    table.appendChild(tbody);
+    return table;
+  }
+
+  function renderProfile(player, rank, rankChange) {
+    profileMain.innerHTML = "";
+
+    var backLink = document.createElement("p");
+    backLink.className = "profile-back";
+    var back = document.createElement("a");
+    back.href = "leaderboard.html";
+    back.textContent = "Back to Leaderboard";
+    backLink.appendChild(back);
+    profileMain.appendChild(backLink);
+
+    var heading = document.createElement("h1");
+    heading.textContent = player.name;
+    profileMain.appendChild(heading);
+
+    var rankStr = rank ? "#" + rank : "";
+    if (rankStr && rankChange !== null && rankChange !== 0) {
+      rankStr += " <span class=\"rank-change\" data-dir=\"" + (rankChange > 0 ? "up" : "down") + "\">"
+        + (rankChange > 0 ? "▲" + rankChange : "▼" + Math.abs(rankChange)) + " this month</span>";
+    }
+
+    var meta = document.createElement("p");
+    meta.className = "profile-meta";
+    var metaParts = [];
+    if (rankStr) metaParts.push("Rank: <strong>" + rankStr + "</strong>");
+    metaParts.push(
+      "Rating: <strong>" + player.currentRating + "</strong>",
+      "Peak: " + player.peakRating,
+      "Sessions: " + player.sessionsPlayed,
+      "Record: " + player.totalWins + "-" + player.totalLosses
+    );
+    meta.innerHTML = metaParts.join("&ensp;&middot;&ensp;");
+    profileMain.appendChild(meta);
+
+    var chartSection = document.createElement("section");
+    var chartHeading = document.createElement("h2");
+    chartHeading.textContent = "Rating History";
+    chartSection.appendChild(chartHeading);
+    if (player.ratingHistory && player.ratingHistory.length) {
+      chartSection.appendChild(makeRatingChart(player.ratingHistory));
+    } else {
+      var noChart = document.createElement("p");
+      noChart.style.color = "var(--muted)";
+      noChart.textContent = "No rating history available.";
+      chartSection.appendChild(noChart);
+    }
+    profileMain.appendChild(chartSection);
+
+    var bottomGrid = document.createElement("div");
+    bottomGrid.className = "profile-bottom-grid";
+
+    var recentSection = document.createElement("section");
+    var recentHeading = document.createElement("h2");
+    recentHeading.textContent = "Recent Sessions";
+    recentSection.appendChild(recentHeading);
+    if (player.ratingHistory && player.ratingHistory.length) {
+      recentSection.appendChild(makeRecentTable(player.ratingHistory));
+    } else {
+      var noSessions = document.createElement("p");
+      noSessions.style.color = "var(--muted)";
+      noSessions.textContent = "No session data available.";
+      recentSection.appendChild(noSessions);
+    }
+    bottomGrid.appendChild(recentSection);
+
+    var h2hSection = document.createElement("section");
+    var h2hHeading = document.createElement("h2");
+    var rivalCount = Object.keys(player.headToHead || {}).length;
+    h2hHeading.textContent = "Head-to-Head (" + rivalCount + " opponents)";
+    h2hSection.appendChild(h2hHeading);
+    h2hSection.appendChild(makeH2HTable(player.headToHead));
+    bottomGrid.appendChild(h2hSection);
+
+    profileMain.appendChild(bottomGrid);
+  }
+
+  fetch("data/players.json")
+    .then(function (r) {
+      if (!r.ok) throw new Error("fetch failed");
+      return r.json();
+    })
+    .then(function (data) {
+      var allPlayers = data.players || [];
+      var normalizedQuery = playerName.toLowerCase();
+      var playerIndex = -1;
+      var player = null;
+      allPlayers.forEach(function (p, i) {
+        if (p.name.toLowerCase() === normalizedQuery) { player = p; playerIndex = i; }
+      });
+      if (!player) {
+        profileStatus.textContent = "Player not found: " + playerName;
+        return;
+      }
+
+      var rank = playerIndex + 1;
+
+      // Rank 30 days ago: re-sort all players by their rating at the cutoff
+      var cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 30);
+      var cutoffStr = cutoff.toISOString().slice(0, 10);
+
+      function ratingAt(p, date) {
+        var h = p.ratingHistory || [];
+        for (var i = h.length - 1; i >= 0; i--) {
+          if (h[i].date <= date) return h[i].rating;
+        }
+        return null;
+      }
+
+      var ranked30 = allPlayers
+        .map(function (p) { return { name: p.name, r: ratingAt(p, cutoffStr) }; })
+        .filter(function (p) { return p.r !== null; })
+        .sort(function (a, b) { return b.r - a.r; });
+
+      var oldRankIndex = ranked30.findIndex(function (p) { return p.name === player.name; });
+      var oldRank = oldRankIndex === -1 ? null : oldRankIndex + 1;
+      var rankChange = (oldRank !== null) ? oldRank - rank : null;
+
+      renderProfile(player, rank, rankChange);
+    })
+    .catch(function () {
+      profileStatus.textContent = "Could not load player data.";
+    });
+}());
+</script>
+
+</body>
+</html>

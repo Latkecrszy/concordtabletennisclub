@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hall of Fame - Concord Table Tennis Club</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
+        <nav>
+      <a href="index.html">Home</a>
+      <a href="firstvisit.html">First Visit</a>
+      <a href="about.html">About</a>
+      <a href="roundrobins.html">Round Robins</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="halloffame.html" class="active">Hall of Fame</a>
+      <a href="membership.html">Membership</a>
+      <a href="coaching.html">Coaching</a>
+      <a href="rules.html">Rules</a>
+      <a href="pictures.html">Pictures</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform" target="_blank" rel="noopener">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <h1>Hall of Fame</h1>
+
+  <p>Club records from round robin sessions beginning January 2024.</p>
+
+  <p id="hof-status" style="color:var(--muted)">Loading...</p>
+
+  <div id="hof-body" hidden></div>
+
+</main>
+
+<footer>
+  Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
+</footer>
+
+<script>
+(function () {
+
+  function makeSection(title, rows, cols) {
+    var section = document.createElement("section");
+    section.className = "hof-section";
+
+    var h2 = document.createElement("h2");
+    h2.textContent = title;
+    section.appendChild(h2);
+
+    var table = document.createElement("table");
+    table.className = "hof-table";
+
+    var thead = document.createElement("thead");
+    var headRow = document.createElement("tr");
+    cols.forEach(function (label) {
+      var th = document.createElement("th");
+      th.textContent = label;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    rows.forEach(function (cells, i) {
+      var row = document.createElement("tr");
+      if (i === 0) row.className = "hof-gold";
+      cells.forEach(function (cell, j) {
+        var td = document.createElement("td");
+        if (typeof cell === "object" && cell && cell.link) {
+          var a = document.createElement("a");
+          a.href = "player.html?name=" + encodeURIComponent(cell.link);
+          a.textContent = cell.text;
+          td.appendChild(a);
+        } else {
+          td.textContent = cell;
+        }
+        row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    section.appendChild(table);
+    return section;
+  }
+
+  fetch("data/players.json")
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var players = data.players || [];
+      var body = document.getElementById("hof-body");
+      document.getElementById("hof-status").hidden = true;
+
+      // 1. All-time peak ratings (top 10)
+      var byPeak = players.slice().sort(function (a, b) { return b.peakRating - a.peakRating; }).slice(0, 10);
+      body.appendChild(makeSection("All-Time Peak Rating", byPeak.map(function (p, i) {
+        return [i + 1, { text: p.name, link: p.name }, p.peakRating, p.currentRating];
+      }), ["", "Player", "Peak Rating", "Current Rating"]));
+
+      // 2. Most sessions played (top 10)
+      var bySessions = players.slice().sort(function (a, b) { return b.sessionsPlayed - a.sessionsPlayed; }).slice(0, 10);
+      body.appendChild(makeSection("Most Sessions Played", bySessions.map(function (p, i) {
+        return [i + 1, { text: p.name, link: p.name }, p.sessionsPlayed, p.totalWins + "-" + p.totalLosses];
+      }), ["", "Player", "Sessions", "W-L"]));
+
+      // 3. Best win rate — min 20 sessions (top 10)
+      var byWinRate = players
+        .filter(function (p) { return p.sessionsPlayed >= 20; })
+        .slice()
+        .sort(function (a, b) {
+          var ra = a.totalWins / (a.totalWins + a.totalLosses);
+          var rb = b.totalWins / (b.totalWins + b.totalLosses);
+          return rb - ra;
+        })
+        .slice(0, 10);
+      body.appendChild(makeSection("Best Win Rate (min. 20 sessions)", byWinRate.map(function (p, i) {
+        var pct = Math.round(100 * p.totalWins / (p.totalWins + p.totalLosses));
+        return [i + 1, { text: p.name, link: p.name }, pct + "%", p.totalWins + "-" + p.totalLosses, p.sessionsPlayed];
+      }), ["", "Player", "Win %", "W-L", "Sessions"]));
+
+      // 4. Biggest single-session rating gain (top 10)
+      var bigGains = [];
+      players.forEach(function (p) {
+        var h = p.ratingHistory || [];
+        for (var i = 1; i < h.length; i++) {
+          var gain = h[i].rating - h[i - 1].rating;
+          if (gain > 0) bigGains.push({ name: p.name, gain: gain, date: h[i].date });
+        }
+      });
+      bigGains.sort(function (a, b) { return b.gain - a.gain; });
+      var topGains = bigGains.slice(0, 10);
+      body.appendChild(makeSection("Biggest Single-Session Rating Gain", topGains.map(function (g, i) {
+        return [i + 1, { text: g.name, link: g.name }, "+" + g.gain, g.date];
+      }), ["", "Player", "Gain", "Date"]));
+
+      // 5. Longest improvement streak (most consecutive sessions with a rating gain)
+      var streakRecords = [];
+      players.forEach(function (p) {
+        var h = p.ratingHistory || [];
+        var best = 0, current = 0, bestEnd = null;
+        for (var i = 1; i < h.length; i++) {
+          if (h[i].rating > h[i - 1].rating) {
+            current++;
+            if (current > best) { best = current; bestEnd = h[i].date; }
+          } else {
+            current = 0;
+          }
+        }
+        if (best >= 3) streakRecords.push({ name: p.name, streak: best, endDate: bestEnd });
+      });
+      streakRecords.sort(function (a, b) { return b.streak - a.streak || a.name.localeCompare(b.name); });
+      var topStreaks = streakRecords.slice(0, 10);
+      body.appendChild(makeSection("Longest Improvement Streak (consecutive sessions gaining rating)", topStreaks.map(function (s, i) {
+        return [i + 1, { text: s.name, link: s.name }, s.streak + " sessions", s.endDate];
+      }), ["", "Player", "Streak", "Ended"]));
+
+      body.hidden = false;
+    })
+    .catch(function () {
+      document.getElementById("hof-status").textContent = "Could not load data.";
+    });
+}());
+</script>
+
+</body>
+</html>
