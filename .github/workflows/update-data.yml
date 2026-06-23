@@ -63,7 +63,7 @@ jobs:
         run: |
           mkdir -p _site
           cp .nojekyll _site/
-          cp *.html style.css _site/
+          cp *.html style.css navtoggle.js _site/
           cp -R data _site/
           cp -R assets _site/
 
