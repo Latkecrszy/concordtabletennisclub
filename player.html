@@ -11,7 +11,8 @@
 <header>
   <div class="header-inner">
     <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
-            <nav>
+                <nav>
+      <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
       <a href="index.html">Home</a>
       <a href="firstvisit.html">First Visit</a>
       <a href="about.html">About</a>
@@ -34,6 +35,8 @@
 <footer>
   Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
 </footer>
+
+<script src="navtoggle.js"></script>
 
 <script>
 (function () {
@@ -151,7 +154,20 @@
     return svg;
   }
 
-  function makeRecentTable(history) {
+  var yearDetailsCache = {};
+
+  function loadYearDetails(year) {
+    if (!yearDetailsCache[year]) {
+      yearDetailsCache[year] = fetch("data/session-details-" + year + ".json")
+        .then(function (r) {
+          if (!r.ok) throw new Error("failed");
+          return r.json();
+        });
+    }
+    return yearDetailsCache[year];
+  }
+
+  function makeRecentTable(history, targetName) {
     var recent = history.slice().reverse().slice(0, 20);
     var table = document.createElement("table");
     table.className = "profile-sessions-table";
@@ -171,9 +187,14 @@
       var prevEntry = recent[i + 1];
       var delta = prevEntry ? entry.rating - prevEntry.rating : null;
       var row = document.createElement("tr");
+      row.className = "profile-session-row";
 
       var dateCell = document.createElement("td");
-      dateCell.textContent = formatLongDate(entry.date);
+      var chevron = document.createElement("span");
+      chevron.className = "session-chevron";
+      chevron.textContent = "▶";
+      dateCell.appendChild(chevron);
+      dateCell.appendChild(document.createTextNode(formatLongDate(entry.date)));
       row.appendChild(dateCell);
 
       var ratingCell = document.createElement("td");
@@ -189,6 +210,75 @@
         adjCell.textContent = "-";
       }
       row.appendChild(adjCell);
+
+      row.addEventListener("click", function () {
+        var next = row.nextElementSibling;
+        if (next && next.classList.contains("profile-session-detail-row")) {
+          next.remove();
+          row.classList.remove("expanded");
+          return;
+        }
+        row.classList.add("expanded");
+
+        var detailRow = document.createElement("tr");
+        detailRow.className = "profile-session-detail-row";
+        var detailCell = document.createElement("td");
+        detailCell.colSpan = 3;
+        detailCell.textContent = "Loading...";
+        detailRow.appendChild(detailCell);
+        row.parentNode.insertBefore(detailRow, row.nextSibling);
+
+        var year = entry.date.split("-")[0];
+        loadYearDetails(year)
+          .then(function (sessions) {
+            var session = sessions.find(function (s) { return s.date === entry.date; });
+            if (!session) { detailCell.textContent = "Session data not available."; return; }
+            var playerData = null;
+            session.groups.forEach(function (group) {
+              group.players.forEach(function (p) {
+                if (p.name.toLowerCase() === targetName.toLowerCase()) playerData = p;
+              });
+            });
+            if (!playerData) { detailCell.textContent = "Could not find player in this session."; return; }
+            if (playerData.matchesUnavailable || !playerData.matches || !playerData.matches.length) {
+              detailCell.textContent = "Match detail not available for this session.";
+              return;
+            }
+            detailCell.innerHTML = "";
+            var matchTable = document.createElement("table");
+            matchTable.className = "profile-match-table";
+            var mtbody = document.createElement("tbody");
+            playerData.matches.forEach(function (m) {
+              var win = m.gamesWon > m.gamesLost;
+              var mrow = document.createElement("tr");
+
+              var nameCell = document.createElement("td");
+              var nameLink = document.createElement("a");
+              nameLink.href = "player.html?name=" + encodeURIComponent(m.opponent);
+              nameLink.textContent = m.opponent;
+              nameCell.appendChild(nameLink);
+              mrow.appendChild(nameCell);
+
+              var scoreCell = document.createElement("td");
+              scoreCell.textContent = m.gamesWon + "-" + m.gamesLost;
+              scoreCell.className = win ? "match-win" : "match-loss";
+              mrow.appendChild(scoreCell);
+
+              var mAdjCell = document.createElement("td");
+              mAdjCell.textContent = (m.adj > 0 ? "+" : "") + m.adj;
+              mAdjCell.className = "profile-adj";
+              mAdjCell.dataset.sign = m.adj > 0 ? "pos" : m.adj < 0 ? "neg" : "zero";
+              mrow.appendChild(mAdjCell);
+
+              mtbody.appendChild(mrow);
+            });
+            matchTable.appendChild(mtbody);
+            detailCell.appendChild(matchTable);
+          })
+          .catch(function () {
+            detailCell.textContent = "Could not load match data.";
+          });
+      });
 
       tbody.appendChild(row);
     });
@@ -308,7 +398,7 @@
     recentHeading.textContent = "Recent Sessions";
     recentSection.appendChild(recentHeading);
     if (player.ratingHistory && player.ratingHistory.length) {
-      recentSection.appendChild(makeRecentTable(player.ratingHistory));
+      recentSection.appendChild(makeRecentTable(player.ratingHistory, player.name));
     } else {
       var noSessions = document.createElement("p");
       noSessions.style.color = "var(--muted)";

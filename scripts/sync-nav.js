@@ -38,11 +38,12 @@ function buildNavBlock(activeHref) {
     if (link.external) { attrs.push('target="_blank"'); attrs.push('rel="noopener"'); }
     return '      <a ' + attrs.join(' ') + '>' + link.label + '</a>';
   });
-  return '    <nav>\n' + links.join('\n') + '\n    </nav>';
+  var toggle = '      <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">&#9776;</button>';
+  return '    <nav>\n' + toggle + '\n' + links.join('\n') + '\n    </nav>';
 }
 
 function buildFooterBlock() {
-  return '<footer>\n  ' + FOOTER_TEXT + '\n</footer>';
+  return '<footer>\n  ' + FOOTER_TEXT + '\n</footer>\n\n<script src="navtoggle.js"></script>';
 }
 
 var htmlFiles = fs.readdirSync(ROOT).filter(function (f) { return f.endsWith('.html'); });
@@ -59,7 +60,7 @@ htmlFiles.forEach(function (filename) {
 
   var result = original
     .replace(/<nav>[\s\S]*?<\/nav>/, newNav)
-    .replace(/<footer>[\s\S]*?<\/footer>/, newFooter);
+    .replace(/<footer>[\s\S]*?<\/footer>(\s*<script src="navtoggle\.js"><\/script>)?/, newFooter);
 
   if (result === original) {
     unchanged++;
