@@ -951,3 +951,77 @@ tr.hof-gold td:nth-child(2) a,
 tr.hof-gold td:nth-child(2) {
   font-weight: 700;
 }
+
+/* ---- Home player search ---- */
+
+.home-search {
+  position: relative;
+  margin: 0 0 1.5rem;
+  max-width: 320px;
+}
+
+.home-search-input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 0.95rem;
+  font-family: system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: #fff;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.home-search-input:focus {
+  border-color: #999;
+}
+
+.home-search-list {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.home-search-list li {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.home-search-list li:hover,
+.home-search-list li.active {
+  background: #f3f0e8;
+}
+
+/* ---- Player profile percentile + show more ---- */
+
+.profile-percentile {
+  font-size: 0.8em;
+  color: var(--muted);
+  font-weight: normal;
+}
+
+.show-more-sessions {
+  margin-top: 10px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.show-more-sessions:hover {
+  border-color: #999;
+  color: var(--text);
+}

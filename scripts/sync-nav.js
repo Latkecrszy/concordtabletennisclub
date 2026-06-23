@@ -59,6 +59,7 @@ htmlFiles.forEach(function (filename) {
   var newFooter = buildFooterBlock();
 
   var result = original
+    .replace(/(<link rel="stylesheet" href="style\.css">)(\s*<link rel="icon"[^>]*>)?/, '$1\n  <link rel="icon" href="favicon.svg">')
     .replace(/<nav>[\s\S]*?<\/nav>/, newNav)
     .replace(/<footer>[\s\S]*?<\/footer>(\s*<script src="navtoggle\.js"><\/script>)?/, newFooter);
 

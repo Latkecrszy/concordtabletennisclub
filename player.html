@@ -4,14 +4,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Player Profile - Concord Table Tennis Club</title>
+  <meta property="og:type" content="profile">
+  <meta property="og:site_name" content="Concord Table Tennis Club">
+  <meta id="og-title" property="og:title" content="Player Profile - Concord Table Tennis Club">
+  <meta id="og-description" property="og:description" content="Rating history, head-to-head records, and session results from Concord Table Tennis Club.">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.svg">
 </head>
 <body>
 
 <header>
   <div class="header-inner">
     <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
-                <nav>
+                    <nav>
       <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
       <a href="index.html">Home</a>
       <a href="firstvisit.html">First Visit</a>
@@ -53,6 +58,8 @@
   }
 
   document.title = playerName + " - Concord Table Tennis Club";
+  var ogTitle = document.getElementById("og-title");
+  if (ogTitle) ogTitle.setAttribute("content", playerName + " - Concord Table Tennis Club");
 
   function createSvg(tag) {
     return document.createElementNS(SVG_NS, tag);
@@ -168,23 +175,26 @@
   }
 
   function makeRecentTable(history, targetName) {
-    var recent = history.slice().reverse().slice(0, 20);
-    var table = document.createElement("table");
-    table.className = "profile-sessions-table";
+    var all = history.slice().reverse();
+    var wrapper = document.createElement("div");
 
-    var thead = document.createElement("thead");
-    var headRow = document.createElement("tr");
-    ["Date", "Rating", "Change"].forEach(function (label) {
-      var th = document.createElement("th");
-      th.textContent = label;
-      headRow.appendChild(th);
-    });
-    thead.appendChild(headRow);
-    table.appendChild(thead);
+    function buildTable(entries) {
+      var table = document.createElement("table");
+      table.className = "profile-sessions-table";
 
-    var tbody = document.createElement("tbody");
-    recent.forEach(function (entry, i) {
-      var prevEntry = recent[i + 1];
+      var thead = document.createElement("thead");
+      var headRow = document.createElement("tr");
+      ["Date", "Rating", "Change"].forEach(function (label) {
+        var th = document.createElement("th");
+        th.textContent = label;
+        headRow.appendChild(th);
+      });
+      thead.appendChild(headRow);
+      table.appendChild(thead);
+
+      var tbody = document.createElement("tbody");
+      entries.forEach(function (entry, i) {
+        var prevEntry = entries[i + 1];
       var delta = prevEntry ? entry.rating - prevEntry.rating : null;
       var row = document.createElement("tr");
       row.className = "profile-session-row";
@@ -280,10 +290,28 @@
           });
       });
 
-      tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-    return table;
+        tbody.appendChild(row);
+      });
+      table.appendChild(tbody);
+      return table;
+    }
+
+    var limit = 20;
+    wrapper.appendChild(buildTable(all.slice(0, limit)));
+
+    if (all.length > limit) {
+      var showMoreBtn = document.createElement("button");
+      showMoreBtn.className = "show-more-sessions";
+      showMoreBtn.textContent = "Show all " + all.length + " sessions";
+      showMoreBtn.addEventListener("click", function () {
+        var existing = wrapper.querySelector("table");
+        wrapper.replaceChild(buildTable(all), existing);
+        showMoreBtn.remove();
+      });
+      wrapper.appendChild(showMoreBtn);
+    }
+
+    return wrapper;
   }
 
   function makeH2HTable(headToHead) {
@@ -342,7 +370,7 @@
     return table;
   }
 
-  function renderProfile(player, rank, rankChange) {
+  function renderProfile(player, rank, rankChange, totalPlayers) {
     profileMain.innerHTML = "";
 
     var backLink = document.createElement("p");
@@ -363,10 +391,18 @@
         + (rankChange > 0 ? "▲" + rankChange : "▼" + Math.abs(rankChange)) + " this month</span>";
     }
 
+    var topPct = totalPlayers ? Math.max(1, Math.ceil(100 * rank / totalPlayers)) : null;
+
+    var ogDesc = document.getElementById("og-description");
+    if (ogDesc && rank) {
+      ogDesc.setAttribute("content", player.name + " · Rating " + player.currentRating + " (Top " + topPct + "%) · " + player.sessionsPlayed + " sessions at Concord Table Tennis Club.");
+    }
+
     var meta = document.createElement("p");
     meta.className = "profile-meta";
     var metaParts = [];
     if (rankStr) metaParts.push("Rank: <strong>" + rankStr + "</strong>");
+    if (topPct !== null) metaParts.push("<span class=\"profile-percentile\">Top " + topPct + "%</span>");
     metaParts.push(
       "Rating: <strong>" + player.currentRating + "</strong>",
       "Peak: " + player.peakRating,
@@ -460,7 +496,7 @@
       var oldRank = oldRankIndex === -1 ? null : oldRankIndex + 1;
       var rankChange = (oldRank !== null) ? oldRank - rank : null;
 
-      renderProfile(player, rank, rankChange);
+      renderProfile(player, rank, rankChange, allPlayers.length);
     })
     .catch(function () {
       profileStatus.textContent = "Could not load player data.";

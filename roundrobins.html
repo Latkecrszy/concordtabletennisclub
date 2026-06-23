@@ -4,14 +4,20 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Round Robins - Concord Table Tennis Club</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Concord Table Tennis Club">
+  <meta property="og:title" content="Round Robin Archive - Concord Table Tennis Club">
+  <meta property="og:description" content="Browse results from 240+ round robin sessions at Concord Table Tennis Club, going back to January 2024.">
+  <meta property="og:url" content="https://latkecrszy.github.io/concordtabletennisclub/roundrobins.html">
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="favicon.svg">
 </head>
 <body>
 
 <header>
   <div class="header-inner">
     <div class="site-title"><a href="index.html">Concord Table Tennis Club</a></div>
-                <nav>
+                    <nav>
       <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
       <a href="index.html">Home</a>
       <a href="firstvisit.html">First Visit</a>
@@ -34,28 +40,10 @@
 
   <p>Every Monday and Wednesday night, players are divided into groups of 5 or 6 by rating and play a round robin against everyone in their group. Results are posted after each session. Ratings are updated based on wins and losses within the group.</p>
 
-  <h2>Current session results</h2>
+  <h2>Recent results</h2>
 
-  <p>Results for each session are posted to Google Sheets after the night ends. Monday and Wednesday results are on separate sheets.</p>
-
-  <table>
-    <thead>
-      <tr>
-        <th>Night</th>
-        <th>Results sheet</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Monday</td>
-        <td><a href="https://sites.google.com/site/concordtabletennis/monday-rr-results" target="_blank" rel="noopener">Monday RR Results</a></td>
-      </tr>
-      <tr>
-        <td>Wednesday</td>
-        <td><a href="https://sites.google.com/site/concordtabletennis/Thursday" target="_blank" rel="noopener">Wednesday RR Results</a></td>
-      </tr>
-    </tbody>
-  </table>
+  <div id="recent-results-loading" style="color:var(--muted);font-size:0.9rem">Loading...</div>
+  <div id="recent-results"></div>
 
   <h2>Archive</h2>
   <p id="archive-status" class="data-status" hidden></p>
@@ -455,6 +443,128 @@
     document.getElementById("archive").innerHTML =
       "<p>Could not load the archive. Try refreshing the page.</p>";
   });
+}());
+</script>
+
+<script>
+(function () {
+  var MONTHS_RR = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  var DAYS_RR = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+  function dayOfWeekRR(dateStr) {
+    var p = dateStr.split("-");
+    return new Date(parseInt(p[0]), parseInt(p[1]) - 1, parseInt(p[2])).getDay();
+  }
+
+  function formatDateRR(dateStr) {
+    var p = dateStr.split("-");
+    return MONTHS_RR[parseInt(p[1]) - 1] + " " + parseInt(p[2]) + " (" + DAYS_RR[dayOfWeekRR(dateStr)] + ")";
+  }
+
+  function signed(n) { return n > 0 ? "+" + n : String(n); }
+
+  function renderRecentGroup(group) {
+    var section = document.createElement("section");
+    section.className = "session-group";
+    var h3 = document.createElement("h3");
+    h3.textContent = group.name;
+    section.appendChild(h3);
+
+    var table = document.createElement("table");
+    table.className = "session-group-table";
+    var thead = document.createElement("thead");
+    var hr = document.createElement("tr");
+    ["Name","Matches","Games","Adj","Rating"].forEach(function (l) {
+      var th = document.createElement("th"); th.textContent = l; hr.appendChild(th);
+    });
+    thead.appendChild(hr);
+    table.appendChild(thead);
+
+    var tbody = document.createElement("tbody");
+    group.players.forEach(function (player) {
+      var row = document.createElement("tr");
+      var nc = document.createElement("td");
+      var a = document.createElement("a");
+      a.href = "player.html?name=" + encodeURIComponent(player.name);
+      a.textContent = player.name;
+      nc.appendChild(a);
+      row.appendChild(nc);
+
+      var matches = (player.wins !== null && player.losses !== null) ? player.wins + "-" + player.losses : "-";
+      var games = "-";
+      if (!player.matchesUnavailable && player.matches && player.matches.length) {
+        var gw = 0, gl = 0;
+        player.matches.forEach(function (m) { gw += (m.gamesWon || 0); gl += (m.gamesLost || 0); });
+        games = gw + "-" + gl;
+      }
+      [matches, games, signed(player.ratingAdj || 0), player.ratingAfter].forEach(function (v) {
+        var td = document.createElement("td"); td.textContent = v; row.appendChild(td);
+      });
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    section.appendChild(table);
+    return section;
+  }
+
+  function renderRecentSession(session, container) {
+    var h3 = document.createElement("h3");
+    h3.textContent = formatDateRR(session.date);
+    h3.style.marginTop = "1.5rem";
+    container.appendChild(h3);
+
+    var archiveLink = document.createElement("p");
+    archiveLink.style.fontSize = "0.85rem";
+    archiveLink.style.marginBottom = "8px";
+    var al = document.createElement("a");
+    al.href = "roundrobins.html#s-" + session.date;
+    al.textContent = "View in archive";
+    archiveLink.appendChild(al);
+    container.appendChild(archiveLink);
+
+    var grid = document.createElement("div");
+    grid.className = "latest-results-groups";
+    session.groups.forEach(function (group) { grid.appendChild(renderRecentGroup(group)); });
+    container.appendChild(grid);
+  }
+
+  fetch("data/sessions.json")
+    .then(function (r) { return r.json(); })
+    .then(function (sessions) {
+      var latestMon = null, latestWed = null;
+      for (var i = 0; i < sessions.length; i++) {
+        var d = dayOfWeekRR(sessions[i].date);
+        if (!latestMon && d === 1) latestMon = sessions[i];
+        if (!latestWed && d === 3) latestWed = sessions[i];
+        if (latestMon && latestWed) break;
+      }
+
+      var yearCache = {};
+      function loadYear(year) {
+        if (!yearCache[year]) yearCache[year] = fetch("data/session-details-" + year + ".json").then(function (r) { return r.json(); });
+        return yearCache[year];
+      }
+
+      var toLoad = [latestMon, latestWed].filter(Boolean);
+      var container = document.getElementById("recent-results");
+      document.getElementById("recent-results-loading").hidden = true;
+
+      Promise.all(toLoad.map(function (s) {
+        return loadYear(s.date.split("-")[0]).then(function (details) {
+          return details.find(function (d) { return d.date === s.date; });
+        });
+      })).then(function (resolved) {
+        resolved.forEach(function (session) {
+          if (session && session.groups && session.groups.length) {
+            renderRecentSession(session, container);
+          }
+        });
+      }).catch(function () {
+        document.getElementById("recent-results-loading").hidden = false;
+        document.getElementById("recent-results-loading").textContent = "Could not load recent results.";
+      });
+    })
+    .catch(function () {});
 }());
 </script>
 
