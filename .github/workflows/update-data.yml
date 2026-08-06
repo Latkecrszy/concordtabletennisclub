@@ -62,7 +62,7 @@ jobs:
       - name: Prepare site artifact
         run: |
           mkdir -p _site
-          cp .nojekyll _site/
+          cp .nojekyll CNAME _site/
           cp *.html style.css navtoggle.js favicon.svg _site/
           cp -R data _site/
           cp -R assets _site/
