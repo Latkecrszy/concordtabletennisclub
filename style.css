@@ -53,7 +53,7 @@ header {
   max-width: 880px;
   margin: 0 auto;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 20px 32px;
   flex-wrap: wrap;
 }
@@ -68,6 +68,13 @@ header {
 .site-title a {
   color: var(--red);
   text-decoration: none;
+  display: block;
+  line-height: 0;
+}
+
+.site-logo {
+  height: 52px;
+  width: auto;
 }
 
 nav {

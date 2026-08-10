@@ -59,7 +59,9 @@ htmlFiles.forEach(function (filename) {
   var newFooter = buildFooterBlock();
 
   var result = original
-    .replace(/(<link rel="stylesheet" href="style\.css">)(\s*<link rel="icon"[^>]*>)?/, '$1\n  <link rel="icon" href="favicon.svg">')
+    .replace(/(<link rel="stylesheet" href="style\.css">)(\s*<link rel="icon"[^>]*>)?/, '$1\n  <link rel="icon" href="assets/logo.png" type="image/png">')
+    .replace(/(\s*<meta property="og:image"[^>]*>)?(\s*<\/head>)/, '\n  <meta property="og:image" content="https://concordtabletennisclub.com/assets/logo.png">$2')
+    .replace(/<div class="site-title"><a href="index\.html">Concord Table Tennis Club<\/a><\/div>/, '<div class="site-title"><a href="index.html"><img src="assets/logo.png" alt="Concord Table Tennis Club" class="site-logo"></a></div>')
     .replace(/<nav>[\s\S]*?<\/nav>/, newNav)
     .replace(/<footer>[\s\S]*?<\/footer>(\s*<script src="navtoggle\.js"><\/script>)?/, newFooter);
 
