@@ -141,10 +141,18 @@
       table.appendChild(thead);
 
       var tbody = document.createElement("tbody");
-      group.players.forEach(function (player) {
+      group.players.forEach(function (player, playerIndex) {
         var row = document.createElement("tr");
+        if (playerIndex === 0) row.className = "group-winner-row";
 
         var nameCell = document.createElement("td");
+        if (playerIndex === 0) {
+          var trophy = document.createElement("span");
+          trophy.className = "group-winner-trophy";
+          trophy.textContent = "🏆 ";
+          trophy.setAttribute("aria-label", "Group winner");
+          nameCell.appendChild(trophy);
+        }
         var link = document.createElement("a");
         link.href = "player.html?name=" + encodeURIComponent(player.name);
         link.textContent = player.name;

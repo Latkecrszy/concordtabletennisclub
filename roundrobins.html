@@ -166,10 +166,18 @@
     table.appendChild(thead);
 
     var tbody = document.createElement("tbody");
-    group.players.forEach(function (player) {
+    group.players.forEach(function (player, playerIndex) {
       var row = document.createElement("tr");
+      if (playerIndex === 0) row.className = "group-winner-row";
 
       var nameCell = document.createElement("td");
+      if (playerIndex === 0) {
+        var trophy = document.createElement("span");
+        trophy.className = "group-winner-trophy";
+        trophy.textContent = "🏆 ";
+        trophy.setAttribute("aria-label", "Group winner");
+        nameCell.appendChild(trophy);
+      }
       var nameLink = document.createElement("a");
       nameLink.href = "player.html?name=" + encodeURIComponent(player.name);
       nameLink.textContent = player.name;
@@ -482,9 +490,17 @@
     table.appendChild(thead);
 
     var tbody = document.createElement("tbody");
-    group.players.forEach(function (player) {
+    group.players.forEach(function (player, playerIndex) {
       var row = document.createElement("tr");
+      if (playerIndex === 0) row.className = "group-winner-row";
       var nc = document.createElement("td");
+      if (playerIndex === 0) {
+        var trophy = document.createElement("span");
+        trophy.className = "group-winner-trophy";
+        trophy.textContent = "🏆 ";
+        trophy.setAttribute("aria-label", "Group winner");
+        nc.appendChild(trophy);
+      }
       var a = document.createElement("a");
       a.href = "player.html?name=" + encodeURIComponent(player.name);
       a.textContent = player.name;

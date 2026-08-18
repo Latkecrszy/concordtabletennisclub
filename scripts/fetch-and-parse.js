@@ -127,9 +127,13 @@ function readRows($, table) {
   return rows;
 }
 
-// Highest rating-after-adjustment first; players with no rating sort last.
-function sortByRatingAfter(players) {
+// Most matches won first; ties (and groups with no match detail) fall back
+// to rating-after-adjustment descending; players with neither sort last.
+function sortByGroupResult(players) {
   return players.slice().sort(function (a, b) {
+    if (a.wins !== null && b.wins !== null && a.wins !== b.wins) {
+      return b.wins - a.wins;
+    }
     if (a.ratingAfter === null && b.ratingAfter === null) return 0;
     if (a.ratingAfter === null) return 1;
     if (b.ratingAfter === null) return -1;
@@ -140,7 +144,7 @@ function sortByRatingAfter(players) {
 function parseSummaryOnlyGroup(name, rows) {
   return {
     name: name,
-    players: sortByRatingAfter(rows.map(function (row) {
+    players: sortByGroupResult(rows.map(function (row) {
       const trailingOffset = cleanText(row.cells[row.cells.length - 1]) === '' ? 1 : 0;
       const ratingAfter = parseNumber(row.cells[row.cells.length - 1 - trailingOffset]);
       const ratingAdj = parseNumber(row.cells[row.cells.length - 2 - trailingOffset]) || 0;
@@ -331,7 +335,7 @@ function applyCanonicalNames(sessions, canonicalName) {
         const names = groupPlayerNames(group, canonicalName);
         return {
           name: group.name,
-          players: sortByRatingAfter(group.players.map(function (player, playerIndex) {
+          players: sortByGroupResult(group.players.map(function (player, playerIndex) {
             const name = names[playerIndex];
             if (isIgnoredPlayer(name)) return null;
             const matchesUnavailable = Boolean(player.matchesUnavailable);

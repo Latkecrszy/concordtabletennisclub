@@ -346,6 +346,14 @@ td {
   text-align: right;
 }
 
+.group-winner-row td {
+  font-weight: bold;
+}
+
+.group-winner-trophy {
+  font-weight: normal;
+}
+
 /* ---- Archive filters ---- */
 
 .archive-filters {
