@@ -116,10 +116,20 @@ function readRows($, table) {
   return rows;
 }
 
+// Highest rating-after-adjustment first; players with no rating sort last.
+function sortByRatingAfter(players) {
+  return players.slice().sort(function (a, b) {
+    if (a.ratingAfter === null && b.ratingAfter === null) return 0;
+    if (a.ratingAfter === null) return 1;
+    if (b.ratingAfter === null) return -1;
+    return b.ratingAfter - a.ratingAfter;
+  });
+}
+
 function parseSummaryOnlyGroup(name, rows) {
   return {
     name: name,
-    players: rows.map(function (row) {
+    players: sortByRatingAfter(rows.map(function (row) {
       const trailingOffset = cleanText(row.cells[row.cells.length - 1]) === '' ? 1 : 0;
       const ratingAfter = parseNumber(row.cells[row.cells.length - 1 - trailingOffset]);
       const ratingAdj = parseNumber(row.cells[row.cells.length - 2 - trailingOffset]) || 0;
@@ -136,7 +146,7 @@ function parseSummaryOnlyGroup(name, rows) {
         matches: [],
         matchesUnavailable: true
       };
-    })
+    }))
   };
 }
 
@@ -217,7 +227,7 @@ function parseGroup($, heading) {
     };
   });
 
-  return { name: name, players: players };
+  return { name: name, players: sortByRatingAfter(players) };
 }
 
 function parseSessionHtml(html, session) {
