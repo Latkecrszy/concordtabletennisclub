@@ -750,6 +750,7 @@ footer {
 
   .header-inner {
     align-items: center;
+    justify-content: space-between;
   }
 
   .session-detail-body {
