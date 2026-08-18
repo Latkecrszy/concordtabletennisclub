@@ -1,9 +1,13 @@
 // Run: node scripts/build-sessions.js > data/sessions.json
-// Scrapes CTTC's old Google Sites RR archive for public Drive report links.
-// Falls back to the legacy scraped link list so local builds keep working.
+// Crawls the public Google Drive folder where CTTC stores its round robin
+// session reports. Falls back to scraping CTTC's old Google Sites RR archive
+// (in case the root folder ID below ever changes), then to the legacy
+// scraped link list, so local builds keep working either way.
 
 const cheerio = require('cheerio');
 
+const ROOT_DRIVE_FOLDER_ID = process.env.CTTC_ROOT_FOLDER_ID ||
+  '1-AULcheVLrGzxi2hkRbErUBwaGDDqf7O';
 const ARCHIVE_URL = process.env.CTTC_ARCHIVE_URL ||
   'https://sites.google.com/site/concordtabletennis/cttc-round-robins/rr-archives';
 const FETCH_HEADERS = { 'User-Agent': 'cttc-session-builder/1.0' };
@@ -148,13 +152,7 @@ function extractFolderEntries(html) {
   return entries;
 }
 
-async function oldSiteSessions() {
-  const archiveHtml = await fetchText(ARCHIVE_URL);
-  const rootFolderIds = extractArchiveFolderIds(archiveHtml);
-  if (!rootFolderIds.length) {
-    throw new Error('No embedded Drive folder found on ' + ARCHIVE_URL);
-  }
-
+async function crawlDriveFolders(rootFolderIds, sourceLabel) {
   const visitedFolders = new Set();
   const seenFiles = new Set();
   const reportEntries = [];
@@ -187,7 +185,7 @@ async function oldSiteSessions() {
   }
 
   if (!reportEntries.length) {
-    throw new Error('No session report files found from ' + ARCHIVE_URL);
+    throw new Error('No session report files found from ' + sourceLabel);
   }
 
   const sessions = sessionsFromEntries(reportEntries);
@@ -198,7 +196,29 @@ async function oldSiteSessions() {
   return sessions;
 }
 
+// Crawl the Drive folder directly using a known, stable root folder ID.
+async function driveFolderSessions() {
+  return crawlDriveFolders([ROOT_DRIVE_FOLDER_ID], 'Drive folder ' + ROOT_DRIVE_FOLDER_ID);
+}
+
+// Fallback: rediscover the root Drive folder ID(s) from CTTC's old Google
+// Sites archive page, in case the hardcoded root folder ID above changes.
+async function oldSiteSessions() {
+  const archiveHtml = await fetchText(ARCHIVE_URL);
+  const rootFolderIds = extractArchiveFolderIds(archiveHtml);
+  if (!rootFolderIds.length) {
+    throw new Error('No embedded Drive folder found on ' + ARCHIVE_URL);
+  }
+  return crawlDriveFolders(rootFolderIds, ARCHIVE_URL);
+}
+
 async function discoveredSessions() {
+  try {
+    return await driveFolderSessions();
+  } catch (error) {
+    process.stderr.write('WARN: direct Drive folder crawl failed; falling back to old site scrape: ' + error.message + '\n');
+  }
+
   try {
     return await oldSiteSessions();
   } catch (error) {
