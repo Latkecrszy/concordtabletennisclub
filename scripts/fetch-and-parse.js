@@ -1,5 +1,14 @@
 // Run: node scripts/fetch-and-parse.js
 // Fetches CTTC session report HTML from Drive and writes parsed JSON data.
+//
+// By default this only fetches sessions that aren't already in the local
+// raw cache (plus the most recent session, in case it was corrected since
+// last run) — old session reports never change once posted, so there's no
+// need to re-download and re-parse all of them every time.
+//
+// Set CTTC_FULL_REFRESH=true to ignore the cache and refetch everything
+// (useful after changing parsing logic, or to rebuild the cache from
+// scratch).
 
 const fs = require('fs/promises');
 const path = require('path');
@@ -9,6 +18,8 @@ const ROOT = path.resolve(__dirname, '..');
 const DATA_DIR = path.join(ROOT, 'data');
 const SESSIONS_FILE = path.join(DATA_DIR, 'sessions.json');
 const ALIASES_FILE = path.join(DATA_DIR, 'player-aliases.json');
+const CACHE_FILE = path.join(ROOT, '.cache', 'session-raw-cache.json');
+const FULL_REFRESH = process.env.CTTC_FULL_REFRESH === 'true' || process.argv.includes('--full');
 const REQUEST_DELAY_MS = Number(process.env.CTTC_FETCH_DELAY_MS || 1000);
 const IGNORED_PLAYER_KEYS = new Set([
   'do-not-use do-not-use'
@@ -227,7 +238,10 @@ function parseGroup($, heading) {
     };
   });
 
-  return { name: name, players: sortByRatingAfter(players) };
+  // Note: sorting here (before applyCanonicalNames) would break the
+  // positional opponent-index mapping that function relies on. Sorting
+  // happens later, after canonical names are applied.
+  return { name: name, players: players };
 }
 
 function parseSessionHtml(html, session) {
@@ -317,7 +331,7 @@ function applyCanonicalNames(sessions, canonicalName) {
         const names = groupPlayerNames(group, canonicalName);
         return {
           name: group.name,
-          players: group.players.map(function (player, playerIndex) {
+          players: sortByRatingAfter(group.players.map(function (player, playerIndex) {
             const name = names[playerIndex];
             if (isIgnoredPlayer(name)) return null;
             const matchesUnavailable = Boolean(player.matchesUnavailable);
@@ -350,7 +364,7 @@ function applyCanonicalNames(sessions, canonicalName) {
               matches: matches,
               matchesUnavailable: matchesUnavailable
             };
-          }).filter(Boolean)
+          }).filter(Boolean))
         };
       }).filter(function (group) {
         return group.players.length > 0;
@@ -421,25 +435,49 @@ function buildPlayers(sessions) {
 }
 
 async function writeJson(file, data) {
+  await fs.mkdir(path.dirname(file), { recursive: true });
   await fs.writeFile(file, JSON.stringify(data, null, 2) + '\n');
 }
 
 async function main() {
   const sessions = await readJson(SESSIONS_FILE, []);
   const aliases = await readJson(ALIASES_FILE, {});
+  const cache = FULL_REFRESH ? [] : await readJson(CACHE_FILE, []);
+  const cacheByDate = new Map(cache.map(function (s) { return [s.date, s]; }));
+  // Sessions are sorted newest-first by build-sessions.js.
+  const latestDate = sessions.length ? sessions[0].date : null;
+
   const parsed = [];
   const failures = [];
+  const toFetch = sessions.filter(function (session) {
+    const cached = cacheByDate.get(session.date);
+    return FULL_REFRESH || !cached || cached.fileId !== session.fileId || session.date === latestDate;
+  });
+
+  process.stdout.write(
+    toFetch.length + ' of ' + sessions.length + ' session(s) need fetching' +
+    (FULL_REFRESH ? ' (full refresh)' : '') + '.\n'
+  );
 
   for (let i = 0; i < sessions.length; i += 1) {
     const session = sessions[i];
-    process.stdout.write('Fetching ' + session.date + ' (' + (i + 1) + '/' + sessions.length + ')\n');
+    const cached = cacheByDate.get(session.date);
+    const needsFetch = FULL_REFRESH || !cached || cached.fileId !== session.fileId || session.date === latestDate;
+
+    if (!needsFetch) {
+      parsed.push(cached);
+      continue;
+    }
+
+    const fetchIndex = toFetch.indexOf(session) + 1;
+    process.stdout.write('Fetching ' + session.date + ' (' + fetchIndex + '/' + toFetch.length + ')\n');
     try {
       const html = await fetchSessionHtml(session);
       parsed.push(parseSessionHtml(html, session));
     } catch (err) {
       const message = err && err.message ? err.message : String(err);
       failures.push({ date: session.date, fileId: session.fileId, error: message });
-      parsed.push({
+      parsed.push(cached || {
         date: session.date,
         fileId: session.fileId,
         groups: [],
@@ -447,7 +485,7 @@ async function main() {
       });
       process.stderr.write('Warning: ' + session.date + ' skipped: ' + message + '\n');
     }
-    if (REQUEST_DELAY_MS > 0 && i < sessions.length - 1) {
+    if (REQUEST_DELAY_MS > 0 && fetchIndex < toFetch.length) {
       await delay(REQUEST_DELAY_MS);
     }
   }
@@ -455,6 +493,10 @@ async function main() {
   if (sessions.length && parsed.every(function (session) { return session.groups.length === 0; })) {
     throw new Error('No session reports were parsed');
   }
+
+  await writeJson(CACHE_FILE, parsed.slice().sort(function (a, b) {
+    return b.date.localeCompare(a.date);
+  }));
 
   const canonicalName = buildCanonicalizer(parsed, aliases);
   const details = applyCanonicalNames(parsed, canonicalName).sort(function (a, b) {

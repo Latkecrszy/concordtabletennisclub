@@ -2,6 +2,11 @@ name: Update Data and Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      full_refresh:
+        description: "Full hard refresh: refetch and reparse every session (ignores the raw data cache)"
+        type: boolean
+        default: false
   schedule:
     # 11:30 PM Pacific during daylight saving time, after Monday and Wednesday sessions.
     - cron: "30 6 * * 2,4"
@@ -45,13 +50,14 @@ jobs:
         run: npm run build:data
         env:
           CTTC_FETCH_DELAY_MS: 250
+          CTTC_FULL_REFRESH: ${{ github.event.inputs.full_refresh == 'true' }}
 
       - name: Commit generated data
         run: |
-          if [ -n "$(git status --porcelain data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json)" ]; then
+          if [ -n "$(git status --porcelain data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json
+            git add data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json
             git commit -m "Update session data"
             git push
           fi

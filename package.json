@@ -7,6 +7,7 @@
     "start": "node server.js",
     "build:sessions": "node scripts/build-sessions.js > data/sessions.json",
     "build:data": "node scripts/fetch-and-parse.js",
+    "build:data:full": "CTTC_FULL_REFRESH=true node scripts/fetch-and-parse.js",
     "build:roster": "node -e \"const p=require('./data/players.json'),r={},fs=require('fs');p.players.forEach(pl=>(pl.ratingHistory||[]).forEach(e=>{if(!r[e.date])r[e.date]=[];r[e.date].push(pl.name)}));fs.writeFileSync('./data/session-roster.json',JSON.stringify(r));console.log('Roster built:',Object.keys(r).length,'sessions');\"",
     "build:player-index": "node -e \"const fs=require('fs'),p=JSON.parse(fs.readFileSync('./data/players.json'));fs.writeFileSync('./data/player-index.json',JSON.stringify(p.players.map(function(p){return p.name}))+'\\n');console.log('Player index:',p.players.length,'names');\"",
     "check:data": "node scripts/check-data.js",
