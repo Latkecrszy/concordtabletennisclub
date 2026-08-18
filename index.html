@@ -172,11 +172,15 @@
     });
   }
 
-  // Notice from schedule.json
+  // Notice from schedule.json (auto-hides once noticeUntil date has passed)
   fetch("data/schedule.json")
     .then(function (r) { return r.json(); })
     .then(function (s) {
       if (!s.notice) return;
+      if (s.noticeUntil) {
+        var today = new Date().toISOString().slice(0, 10);
+        if (today > s.noticeUntil) return;
+      }
       var el = document.getElementById("site-notice");
       el.textContent = s.notice;
       el.hidden = false;
