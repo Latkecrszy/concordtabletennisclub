@@ -1,5 +1,1224 @@
 [
   {
+    "date": "2026-08-17",
+    "fileId": "1RJOJHtHWQPlcaqC3EvVX4MkcFTXPxKci",
+    "groups": [
+      {
+        "name": "Group 1",
+        "players": [
+          {
+            "name": "Ngai-Chi Chung",
+            "wins": 3,
+            "losses": 1,
+            "gamesWon": 11,
+            "gamesLost": 7,
+            "ratingBefore": 1900,
+            "ratingAfter": 1882,
+            "ratingAdj": -18,
+            "matches": [
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -20
+              },
+              {
+                "opponent": "Marko Shafik",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 2
+              },
+              {
+                "opponent": "Raymond Trinh",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 0
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Alex Lam",
+            "wins": 3,
+            "losses": 1,
+            "gamesWon": 11,
+            "gamesLost": 6,
+            "ratingBefore": 1801,
+            "ratingAfter": 1810,
+            "ratingAdj": 9,
+            "matches": [
+              {
+                "opponent": "Ngai-Chi Chung",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 20
+              },
+              {
+                "opponent": "Marko Shafik",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Raymond Trinh",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 0
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 2
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Marko Shafik",
+            "wins": 3,
+            "losses": 1,
+            "gamesWon": 11,
+            "gamesLost": 6,
+            "ratingBefore": 1739,
+            "ratingAfter": 1755,
+            "ratingAdj": 16,
+            "matches": [
+              {
+                "opponent": "Ngai-Chi Chung",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 13
+              },
+              {
+                "opponent": "Raymond Trinh",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 1
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 4
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Raymond Trinh",
+            "wins": 1,
+            "losses": 3,
+            "gamesWon": 6,
+            "gamesLost": 11,
+            "ratingBefore": 1548,
+            "ratingAfter": 1567,
+            "ratingAdj": 19,
+            "matches": [
+              {
+                "opponent": "Ngai-Chi Chung",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Marko Shafik",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -1
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 20
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Jafar Fatemi",
+            "wins": 0,
+            "losses": 4,
+            "gamesWon": 3,
+            "gamesLost": 12,
+            "ratingBefore": 1637,
+            "ratingAfter": 1611,
+            "ratingAdj": -26,
+            "matches": [
+              {
+                "opponent": "Ngai-Chi Chung",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Marko Shafik",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "Raymond Trinh",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -20
+              }
+            ],
+            "matchesUnavailable": false
+          }
+        ]
+      },
+      {
+        "name": "Group 2",
+        "players": [
+          {
+            "name": "Victor Lee",
+            "wins": 4,
+            "losses": 0,
+            "gamesWon": 12,
+            "gamesLost": 3,
+            "ratingBefore": 1466,
+            "ratingAfter": 1493,
+            "ratingAdj": 27,
+            "matches": [
+              {
+                "opponent": "Ilya Liberman",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 10
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 6
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 3
+              },
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 8
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Ilya Liberman",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 8,
+            "gamesLost": 6,
+            "ratingBefore": 1481,
+            "ratingAfter": 1470,
+            "ratingAdj": -11,
+            "matches": [
+              {
+                "opponent": "Victor Lee",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -10
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 6
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 3
+              },
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -10
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "J. B. Birch",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 7,
+            "gamesLost": 10,
+            "ratingBefore": 1422,
+            "ratingAfter": 1428,
+            "ratingAdj": 6,
+            "matches": [
+              {
+                "opponent": "Victor Lee",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -6
+              },
+              {
+                "opponent": "Ilya Liberman",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -6
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 5
+              },
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 13
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Brandon Van Buskirk",
+            "wins": 1,
+            "losses": 3,
+            "gamesWon": 5,
+            "gamesLost": 10,
+            "ratingBefore": 1349,
+            "ratingAfter": 1363,
+            "ratingAdj": 14,
+            "matches": [
+              {
+                "opponent": "Victor Lee",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -3
+              },
+              {
+                "opponent": "Ilya Liberman",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -3
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -5
+              },
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 25
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Eric Aki",
+            "wins": 1,
+            "losses": 3,
+            "gamesWon": 8,
+            "gamesLost": 11,
+            "ratingBefore": 1466,
+            "ratingAfter": 1430,
+            "ratingAdj": -36,
+            "matches": [
+              {
+                "opponent": "Victor Lee",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -8
+              },
+              {
+                "opponent": "Ilya Liberman",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 10
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -25
+              }
+            ],
+            "matchesUnavailable": false
+          }
+        ]
+      },
+      {
+        "name": "Group 3",
+        "players": [
+          {
+            "name": "Li Long",
+            "wins": 4,
+            "losses": 0,
+            "gamesWon": 12,
+            "gamesLost": 5,
+            "ratingBefore": 1292,
+            "ratingAfter": 1365,
+            "ratingAdj": 73,
+            "matches": [
+              {
+                "opponent": "Frank Bruni",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 7
+              },
+              {
+                "opponent": "Son Lu",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 13
+              },
+              {
+                "opponent": "Bob Zandipour",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 45
+              },
+              {
+                "opponent": "Dan Morgan",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 8
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Frank Bruni",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 9,
+            "gamesLost": 6,
+            "ratingBefore": 1267,
+            "ratingAfter": 1319,
+            "ratingAdj": 52,
+            "matches": [
+              {
+                "opponent": "Li Long",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -7
+              },
+              {
+                "opponent": "Son Lu",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 16
+              },
+              {
+                "opponent": "Bob Zandipour",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 50
+              },
+              {
+                "opponent": "Dan Morgan",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -7
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Son Lu",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 6,
+            "gamesLost": 9,
+            "ratingBefore": 1331,
+            "ratingAfter": 1348,
+            "ratingAdj": 17,
+            "matches": [
+              {
+                "opponent": "Li Long",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Frank Bruni",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -16
+              },
+              {
+                "opponent": "Bob Zandipour",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 40
+              },
+              {
+                "opponent": "Dan Morgan",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 6
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Bob Zandipour",
+            "wins": 1,
+            "losses": 3,
+            "gamesWon": 6,
+            "gamesLost": 10,
+            "ratingBefore": 1527,
+            "ratingAfter": 1393,
+            "ratingAdj": -134,
+            "matches": [
+              {
+                "opponent": "Li Long",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -45
+              },
+              {
+                "opponent": "Frank Bruni",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -50
+              },
+              {
+                "opponent": "Son Lu",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -40
+              },
+              {
+                "opponent": "Dan Morgan",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 1
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Dan Morgan",
+            "wins": 1,
+            "losses": 3,
+            "gamesWon": 8,
+            "gamesLost": 11,
+            "ratingBefore": 1290,
+            "ratingAfter": 1282,
+            "ratingAdj": -8,
+            "matches": [
+              {
+                "opponent": "Li Long",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -8
+              },
+              {
+                "opponent": "Frank Bruni",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 7
+              },
+              {
+                "opponent": "Son Lu",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -6
+              },
+              {
+                "opponent": "Bob Zandipour",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -1
+              }
+            ],
+            "matchesUnavailable": false
+          }
+        ]
+      },
+      {
+        "name": "Group 4",
+        "players": [
+          {
+            "name": "Kevin Houston",
+            "wins": 3,
+            "losses": 1,
+            "gamesWon": 10,
+            "gamesLost": 4,
+            "ratingBefore": 1116,
+            "ratingAfter": 1139,
+            "ratingAdj": 23,
+            "matches": [
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 13
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 13
+              },
+              {
+                "opponent": "Tate Houston",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "Samia Bendi",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 1
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Behnam Behjoo",
+            "wins": 2,
+            "losses": 1,
+            "gamesWon": 7,
+            "gamesLost": 3,
+            "ratingBefore": 1159,
+            "ratingAfter": 1154,
+            "ratingAdj": -5,
+            "matches": [
+              {
+                "opponent": "Kevin Houston",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 8
+              },
+              {
+                "opponent": "Tate Houston",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Samia Bendi",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Niyousha Pourzand",
+            "wins": 1,
+            "losses": 2,
+            "gamesWon": 3,
+            "gamesLost": 8,
+            "ratingBefore": 1158,
+            "ratingAfter": 1137,
+            "ratingAdj": -21,
+            "matches": [
+              {
+                "opponent": "Kevin Houston",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -8
+              },
+              {
+                "opponent": "Tate Houston",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Samia Bendi",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Tate Houston",
+            "wins": 2,
+            "losses": 0,
+            "gamesWon": 6,
+            "gamesLost": 1,
+            "ratingBefore": 1211,
+            "ratingAfter": 1215,
+            "ratingAdj": 4,
+            "matches": [
+              {
+                "opponent": "Kevin Houston",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 4
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Samia Bendi",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Samia Bendi",
+            "wins": 0,
+            "losses": 4,
+            "gamesWon": 2,
+            "gamesLost": 12,
+            "ratingBefore": 890,
+            "ratingAfter": 889,
+            "ratingAdj": -1,
+            "matches": [
+              {
+                "opponent": "Kevin Houston",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -1
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Tate Houston",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          }
+        ]
+      },
+      {
+        "name": "Group 5",
+        "players": [
+          {
+            "name": "Iman Mukherjee",
+            "wins": 2,
+            "losses": 1,
+            "gamesWon": 7,
+            "gamesLost": 5,
+            "ratingBefore": 1048,
+            "ratingAfter": 1034,
+            "ratingAdj": -14,
+            "matches": [
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 2
+              },
+              {
+                "opponent": "Ryan Beavers",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Alex Hwang",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Dario Rosidi",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -16
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Seth Raphael",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 8,
+            "gamesLost": 7,
+            "ratingBefore": 906,
+            "ratingAfter": 919,
+            "ratingAdj": 13,
+            "matches": [
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Ryan Beavers",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 4
+              },
+              {
+                "opponent": "Alex Hwang",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 16
+              },
+              {
+                "opponent": "Dario Rosidi",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -5
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Ryan Beavers",
+            "wins": 1,
+            "losses": 2,
+            "gamesWon": 3,
+            "gamesLost": 8,
+            "ratingBefore": 796,
+            "ratingAfter": 832,
+            "ratingAdj": 36,
+            "matches": [
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "Alex Hwang",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 40
+              },
+              {
+                "opponent": "Dario Rosidi",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Alex Hwang",
+            "wins": 0,
+            "losses": 2,
+            "gamesWon": 3,
+            "gamesLost": 6,
+            "ratingBefore": 991,
+            "ratingAfter": 935,
+            "ratingAdj": -56,
+            "matches": [
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -16
+              },
+              {
+                "opponent": "Ryan Beavers",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -40
+              },
+              {
+                "opponent": "Dario Rosidi",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Dario Rosidi",
+            "wins": 2,
+            "losses": 0,
+            "gamesWon": 6,
+            "gamesLost": 1,
+            "ratingBefore": 983,
+            "ratingAfter": 1004,
+            "ratingAdj": 21,
+            "matches": [
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 16
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 5
+              },
+              {
+                "opponent": "Ryan Beavers",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Alex Hwang",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          }
+        ]
+      },
+      {
+        "name": "Group 6",
+        "players": [
+          {
+            "name": "Sacha Simpson",
+            "wins": 4,
+            "losses": 0,
+            "gamesWon": 12,
+            "gamesLost": 4,
+            "ratingBefore": 662,
+            "ratingAfter": 676,
+            "ratingAdj": 14,
+            "matches": [
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 6
+              },
+              {
+                "opponent": "Creig Murtha",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 6
+              },
+              {
+                "opponent": "Lily Li",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 2
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Ron Buxton",
+            "wins": 4,
+            "losses": 1,
+            "gamesWon": 14,
+            "gamesLost": 5,
+            "ratingBefore": 623,
+            "ratingAfter": 636,
+            "ratingAdj": 13,
+            "matches": [
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -6
+              },
+              {
+                "opponent": "Creig Murtha",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 7
+              },
+              {
+                "opponent": "Lily Li",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 10
+              },
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 2
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Creig Murtha",
+            "wins": 3,
+            "losses": 2,
+            "gamesWon": 11,
+            "gamesLost": 9,
+            "ratingBefore": 610,
+            "ratingAfter": 613,
+            "ratingAdj": 3,
+            "matches": [
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -6
+              },
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -7
+              },
+              {
+                "opponent": "Lily Li",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 13
+              },
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 3
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Lily Li",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 9,
+            "gamesLost": 6,
+            "ratingBefore": 649,
+            "ratingAfter": 628,
+            "ratingAdj": -21,
+            "matches": [
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -10
+              },
+              {
+                "opponent": "Creig Murtha",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 2
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Trevor Soria",
+            "wins": 1,
+            "losses": 4,
+            "gamesWon": 5,
+            "gamesLost": 12,
+            "ratingBefore": 475,
+            "ratingAfter": 469,
+            "ratingAdj": -6,
+            "matches": [
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Creig Murtha",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -3
+              },
+              {
+                "opponent": "Lily Li",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 3
+              }
+            ],
+            "matchesUnavailable": false
+          },
+          {
+            "name": "Susie Epstein",
+            "wins": 0,
+            "losses": 5,
+            "gamesWon": 0,
+            "gamesLost": 15,
+            "ratingBefore": 361,
+            "ratingAfter": 358,
+            "ratingAdj": -3,
+            "matches": [
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Creig Murtha",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Lily Li",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -3
+              }
+            ],
+            "matchesUnavailable": false
+          }
+        ]
+      }
+    ]
+  },
+  {
     "date": "2026-08-05",
     "fileId": "1wwFgS3U6wiPOa1Isrt8UlinH7PtAAOfa",
     "groups": [
