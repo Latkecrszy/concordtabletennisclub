@@ -86,6 +86,13 @@ jobs:
           CTTC_FULL_REFRESH: ${{ github.event.inputs.full_refresh == 'true' }}
 
       - name: Send session summary email
+        # Only ever on a scheduled run or a manual trigger — never on an
+        # ordinary push to main (e.g. a code/content change). The
+        # already-sent marker (.cache/last-emailed-session.json) guards
+        # against re-sending for a session that was already emailed, but
+        # that guard only works once it exists; this restriction is the
+        # real backstop against a routine push ever mailing everyone.
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         run: npm run email:send
         env:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
