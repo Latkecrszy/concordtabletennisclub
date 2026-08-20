@@ -82,6 +82,9 @@ jobs:
           GMAIL_USER: ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
           EMAIL_SUBSCRIBERS: ${{ secrets.EMAIL_SUBSCRIBERS }}
+          GOOGLE_SHEETS_SUBSCRIBERS_ID: ${{ secrets.GOOGLE_SHEETS_SUBSCRIBERS_ID }}
+          GOOGLE_SERVICE_ACCOUNT_EMAIL: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY }}
 
       - name: Commit generated data
         run: |

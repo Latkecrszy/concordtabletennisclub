@@ -1,10 +1,11 @@
 // Sends the session summary email built by build-session-email.js via
-// Gmail SMTP, to everyone listed in the EMAIL_SUBSCRIBERS env var.
+// Gmail SMTP, to the subscriber list (from a private Google Sheet, or a
+// plain env var if the sheet isn't configured).
 //
 // Subscriber addresses are NOT stored in any committed file. This repo is
 // public and data/ is deployed straight to the live site, so real email
-// addresses must only ever live in a GitHub Actions secret (or a local
-// .env-style export), never in git history.
+// addresses must only ever live in a Google Sheet or a GitHub Actions
+// secret, never in git history.
 //
 // Safe to run any time: it no-ops (exit 0) if subscribers are empty,
 // credentials aren't set, or this session's summary was already sent.
@@ -15,6 +16,25 @@
 //   3. In repo Settings -> Secrets and variables -> Actions, add:
 //        GMAIL_USER            the sending Gmail address
 //        GMAIL_APP_PASSWORD    the 16-character app password
+//
+//   Then pick ONE way to supply the subscriber list:
+//
+//   Option A - private Google Sheet (recommended, easiest to maintain):
+//     a. In Google Cloud Console (same Google account is fine), create a
+//        project, enable the "Google Sheets API", then create a Service
+//        Account and generate a JSON key for it.
+//     b. Open the private subscribers sheet, share it with the service
+//        account's email address (looks like xyz@project.iam.gserviceaccount.com)
+//        as a Viewer.
+//     c. Put one email address per row in a column (a header row is fine,
+//        anything that isn't a valid email address is ignored).
+//     d. Add repo secrets:
+//          GOOGLE_SHEETS_SUBSCRIBERS_ID     the spreadsheet ID from its URL
+//          GOOGLE_SERVICE_ACCOUNT_EMAIL     the service account's email
+//          GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY   the key's "private_key" field
+//        (GOOGLE_SHEETS_SUBSCRIBERS_RANGE defaults to "Subscribers!A:A")
+//
+//   Option B - plain list, no sheet:
 //        EMAIL_SUBSCRIBERS     recipient addresses, comma or newline separated
 //
 // Run: node scripts/send-session-email.js [date]
@@ -28,12 +48,31 @@ const { buildSessionEmail, latestSessionDate } = require('./build-session-email'
 
 const ROOT = path.join(__dirname, '..');
 const LAST_SENT_FILE = path.join(ROOT, '.cache', 'last-emailed-session.json');
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function parseSubscribers(raw) {
   return String(raw || '')
     .split(/[,\n]/)
     .map(function (s) { return s.trim(); })
     .filter(Boolean);
+}
+
+async function loadSubscribers() {
+  const sheetId = process.env.GOOGLE_SHEETS_SUBSCRIBERS_ID;
+  const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+  const rawPrivateKey = process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY;
+
+  if (sheetId && clientEmail && rawPrivateKey) {
+    const { fetchSheetColumn } = require('./lib/google-sheets');
+    const range = process.env.GOOGLE_SHEETS_SUBSCRIBERS_RANGE || 'Subscribers!A:A';
+    const privateKey = rawPrivateKey.replace(/\\n/g, '\n');
+    const values = await fetchSheetColumn(sheetId, range, clientEmail, privateKey);
+    return values
+      .map(function (v) { return String(v).trim(); })
+      .filter(function (v) { return EMAIL_PATTERN.test(v); });
+  }
+
+  return parseSubscribers(process.env.EMAIL_SUBSCRIBERS);
 }
 
 function loadJson(file, fallback) {
@@ -57,9 +96,9 @@ async function main() {
     return;
   }
 
-  const subscribers = parseSubscribers(process.env.EMAIL_SUBSCRIBERS);
+  const subscribers = await loadSubscribers();
   if (!subscribers.length) {
-    console.log('No subscribers set in EMAIL_SUBSCRIBERS; skipping send.');
+    console.log('No subscribers found (checked Google Sheet and EMAIL_SUBSCRIBERS); skipping send.');
     return;
   }
 
