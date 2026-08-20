@@ -63,6 +63,29 @@ function parseSubscribers(raw) {
     .filter(Boolean);
 }
 
+// GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY commonly arrives mangled: wrapped in
+// quotes (if someone pasted the JSON field verbatim, quotes and all), or
+// with literal "\n" two-character sequences instead of real newlines.
+// Normalize both cases and fail with a clear message if it still doesn't
+// look like a PEM key, rather than letting OpenSSL's cryptic decoder error
+// surface.
+function normalizePrivateKey(raw) {
+  let key = String(raw || '').trim();
+  if ((key.startsWith('"') && key.endsWith('"')) || (key.startsWith("'") && key.endsWith("'"))) {
+    key = key.slice(1, -1);
+  }
+  key = key.replace(/\\n/g, '\n').trim();
+  if (!/-----BEGIN (RSA )?PRIVATE KEY-----/.test(key)) {
+    throw new Error(
+      'GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY does not look like a PEM key. ' +
+      'Paste the full "private_key" value from the service account JSON file ' +
+      '(including the -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY----- lines), ' +
+      'without surrounding quotes.'
+    );
+  }
+  return key;
+}
+
 async function loadSubscribers() {
   const sheetId = process.env.GOOGLE_SHEETS_SUBSCRIBERS_ID;
   const clientEmail = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
@@ -71,7 +94,7 @@ async function loadSubscribers() {
   if (sheetId && clientEmail && rawPrivateKey) {
     const { fetchSheetColumn } = require('./lib/google-sheets');
     const range = process.env.GOOGLE_SHEETS_SUBSCRIBERS_RANGE || 'Subscribers!A:A';
-    const privateKey = rawPrivateKey.replace(/\\n/g, '\n');
+    const privateKey = normalizePrivateKey(rawPrivateKey);
     const values = await fetchSheetColumn(sheetId, range, clientEmail, privateKey);
     return values
       .map(function (v) { return String(v).trim(); })
