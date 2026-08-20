@@ -359,6 +359,11 @@
     });
   }
 
+  // The "Recent results" section above the archive loads asynchronously and
+  // can still be inserting content (shifting page layout) after this has
+  // already scrolled to the target. window.scrollToArchiveHash is exposed
+  // so that section can re-trigger a corrective scroll once it settles,
+  // whichever of the two finishes loading last.
   function scrollToHash() {
     var hash = window.location.hash.replace("#", "");
     if (!hash.match(/^s-\d{4}-\d{2}-\d{2}$/)) return;
@@ -371,6 +376,7 @@
     }
     setTimeout(function () { target.scrollIntoView({ behavior: "smooth", block: "start" }); }, 80);
   }
+  window.scrollToArchiveHash = scrollToHash;
 
   fetch("data/site-status.json")
     .then(function (r) { return r.json(); })
@@ -579,9 +585,13 @@
       }).catch(function () {
         document.getElementById("recent-results-loading").hidden = false;
         document.getElementById("recent-results-loading").textContent = "Could not load recent results.";
+      }).then(function () {
+        if (window.scrollToArchiveHash) window.scrollToArchiveHash();
       });
     })
-    .catch(function () {});
+    .catch(function () {
+      if (window.scrollToArchiveHash) window.scrollToArchiveHash();
+    });
 }());
 </script>
 
