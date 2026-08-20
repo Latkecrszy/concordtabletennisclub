@@ -1,5 +1,1145 @@
 [
   {
+    "date": "2026-08-19",
+    "fileId": "1tqybm58W26ry3kTyBYvQyaCi5CQY7CY7",
+    "groups": [
+      {
+        "name": "Group 1",
+        "players": [
+          {
+            "name": "Piotr Zajac",
+            "wins": 4,
+            "losses": 0,
+            "gamesWon": 12,
+            "gamesLost": 1,
+            "ratingBefore": 2043,
+            "ratingAfter": 2044,
+            "ratingAdj": 1,
+            "matches": [
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 1
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "William Craig",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 0
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Alex Lam",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 8,
+            "gamesLost": 6,
+            "ratingBefore": 1810,
+            "ratingAfter": 1773,
+            "ratingAdj": -37,
+            "matches": [
+              {
+                "opponent": "Piotr Zajac",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -1
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -40
+              },
+              {
+                "opponent": "William Craig",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 4
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Jafar Fatemi",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 7,
+            "gamesLost": 8,
+            "ratingBefore": 1611,
+            "ratingAfter": 1649,
+            "ratingAdj": 38,
+            "matches": [
+              {
+                "opponent": "Piotr Zajac",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 40
+              },
+              {
+                "opponent": "William Craig",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 2
+              }
+            ]
+          },
+          {
+            "name": "William Craig",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 7,
+            "gamesLost": 9,
+            "ratingBefore": 1720,
+            "ratingAfter": 1720,
+            "ratingAdj": 0,
+            "matches": [
+              {
+                "opponent": "Piotr Zajac",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 4
+              },
+              {
+                "opponent": "J. B. Birch",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "J. B. Birch",
+            "wins": 0,
+            "losses": 4,
+            "gamesWon": 2,
+            "gamesLost": 12,
+            "ratingBefore": 1428,
+            "ratingAfter": 1426,
+            "ratingAdj": -2,
+            "matches": [
+              {
+                "opponent": "Piotr Zajac",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Alex Lam",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Jafar Fatemi",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "William Craig",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Group 2",
+        "players": [
+          {
+            "name": "Eric Aki",
+            "wins": 5,
+            "losses": 0,
+            "gamesWon": 15,
+            "gamesLost": 7,
+            "ratingBefore": 1430,
+            "ratingAfter": 1443,
+            "ratingAdj": 13,
+            "matches": [
+              {
+                "opponent": "Ernie Olatunji",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 1
+              },
+              {
+                "opponent": "Arash Meshksar",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 2
+              },
+              {
+                "opponent": "Li Long",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 5
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 5
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Ernie Olatunji",
+            "wins": 3,
+            "losses": 2,
+            "gamesWon": 12,
+            "gamesLost": 9,
+            "ratingBefore": 1205,
+            "ratingAfter": 1245,
+            "ratingAdj": 40,
+            "matches": [
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -1
+              },
+              {
+                "opponent": "Arash Meshksar",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 13
+              },
+              {
+                "opponent": "Li Long",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 30
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Arash Meshksar",
+            "wins": 3,
+            "losses": 2,
+            "gamesWon": 12,
+            "gamesLost": 8,
+            "ratingBefore": 1259,
+            "ratingAfter": 1284,
+            "ratingAdj": 25,
+            "matches": [
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Ernie Olatunji",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Li Long",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 20
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 20
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Li Long",
+            "wins": 2,
+            "losses": 3,
+            "gamesWon": 11,
+            "gamesLost": 10,
+            "ratingBefore": 1365,
+            "ratingAfter": 1318,
+            "ratingAdj": -47,
+            "matches": [
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -5
+              },
+              {
+                "opponent": "Ernie Olatunji",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -30
+              },
+              {
+                "opponent": "Arash Meshksar",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -20
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 8
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Brandon Van Buskirk",
+            "wins": 2,
+            "losses": 3,
+            "gamesWon": 8,
+            "gamesLost": 11,
+            "ratingBefore": 1363,
+            "ratingAfter": 1332,
+            "ratingAdj": -31,
+            "matches": [
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -5
+              },
+              {
+                "opponent": "Ernie Olatunji",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 2
+              },
+              {
+                "opponent": "Arash Meshksar",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -20
+              },
+              {
+                "opponent": "Li Long",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -8
+              },
+              {
+                "opponent": "Seth Raphael",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Seth Raphael",
+            "wins": 0,
+            "losses": 5,
+            "gamesWon": 2,
+            "gamesLost": 15,
+            "ratingBefore": 919,
+            "ratingAfter": 919,
+            "ratingAdj": 0,
+            "matches": [
+              {
+                "opponent": "Eric Aki",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Ernie Olatunji",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Arash Meshksar",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Li Long",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              },
+              {
+                "opponent": "Brandon Van Buskirk",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Group 3",
+        "players": [
+          {
+            "name": "Borzoo Shadpour",
+            "wins": 4,
+            "losses": 0,
+            "gamesWon": 12,
+            "gamesLost": 6,
+            "ratingBefore": 990,
+            "ratingAfter": 1081,
+            "ratingAdj": 91,
+            "matches": [
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 30
+              },
+              {
+                "opponent": "Daniel D Yi",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 13
+              },
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 13
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 35
+              },
+              {
+                "opponent": "Donald Miller",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Niyousha Pourzand",
+            "wins": 3,
+            "losses": 2,
+            "gamesWon": 10,
+            "gamesLost": 10,
+            "ratingBefore": 1137,
+            "ratingAfter": 1100,
+            "ratingAdj": -37,
+            "matches": [
+              {
+                "opponent": "Borzoo Shadpour",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -30
+              },
+              {
+                "opponent": "Daniel D Yi",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 4
+              },
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 4
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 10
+              },
+              {
+                "opponent": "Donald Miller",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -25
+              }
+            ]
+          },
+          {
+            "name": "Daniel D Yi",
+            "wins": 2,
+            "losses": 3,
+            "gamesWon": 12,
+            "gamesLost": 12,
+            "ratingBefore": 1036,
+            "ratingAfter": 1031,
+            "ratingAdj": -5,
+            "matches": [
+              {
+                "opponent": "Borzoo Shadpour",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 8
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -3
+              },
+              {
+                "opponent": "Donald Miller",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 7
+              }
+            ]
+          },
+          {
+            "name": "Iman Mukherjee",
+            "wins": 2,
+            "losses": 3,
+            "gamesWon": 9,
+            "gamesLost": 11,
+            "ratingBefore": 1034,
+            "ratingAfter": 1041,
+            "ratingAdj": 7,
+            "matches": [
+              {
+                "opponent": "Borzoo Shadpour",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "Daniel D Yi",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -8
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 25
+              },
+              {
+                "opponent": "Donald Miller",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 7
+              }
+            ]
+          },
+          {
+            "name": "Behnam Behjoo",
+            "wins": 1,
+            "losses": 3,
+            "gamesWon": 7,
+            "gamesLost": 11,
+            "ratingBefore": 1154,
+            "ratingAfter": 1087,
+            "ratingAdj": -67,
+            "matches": [
+              {
+                "opponent": "Borzoo Shadpour",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -35
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -10
+              },
+              {
+                "opponent": "Daniel D Yi",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 3
+              },
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -25
+              },
+              {
+                "opponent": "Donald Miller",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Donald Miller",
+            "wins": 1,
+            "losses": 2,
+            "gamesWon": 6,
+            "gamesLost": 6,
+            "ratingBefore": 1005,
+            "ratingAfter": 1016,
+            "ratingAdj": 11,
+            "matches": [
+              {
+                "opponent": "Borzoo Shadpour",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Niyousha Pourzand",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 25
+              },
+              {
+                "opponent": "Daniel D Yi",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -7
+              },
+              {
+                "opponent": "Iman Mukherjee",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -7
+              },
+              {
+                "opponent": "Behnam Behjoo",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Group 4",
+        "players": [
+          {
+            "name": "Ryan Beavers",
+            "wins": 3,
+            "losses": 0,
+            "gamesWon": 9,
+            "gamesLost": 1,
+            "ratingBefore": 832,
+            "ratingAfter": 847,
+            "ratingAdj": 15,
+            "matches": [
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 2
+              },
+              {
+                "opponent": "Bob Sickles",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 7
+              },
+              {
+                "opponent": "Jaden Wu",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 6
+              }
+            ]
+          },
+          {
+            "name": "Sacha Simpson",
+            "wins": 2,
+            "losses": 1,
+            "gamesWon": 6,
+            "gamesLost": 4,
+            "ratingBefore": 676,
+            "ratingAfter": 719,
+            "ratingAdj": 43,
+            "matches": [
+              {
+                "opponent": "Ryan Beavers",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Bob Sickles",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 25
+              },
+              {
+                "opponent": "Jaden Wu",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 20
+              }
+            ]
+          },
+          {
+            "name": "Bob Sickles",
+            "wins": 1,
+            "losses": 2,
+            "gamesWon": 5,
+            "gamesLost": 6,
+            "ratingBefore": 801,
+            "ratingAfter": 776,
+            "ratingAdj": -25,
+            "matches": [
+              {
+                "opponent": "Ryan Beavers",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -7
+              },
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -25
+              },
+              {
+                "opponent": "Jaden Wu",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 7
+              }
+            ]
+          },
+          {
+            "name": "Jaden Wu",
+            "wins": 0,
+            "losses": 3,
+            "gamesWon": 0,
+            "gamesLost": 9,
+            "ratingBefore": 777,
+            "ratingAfter": 744,
+            "ratingAdj": -33,
+            "matches": [
+              {
+                "opponent": "Ryan Beavers",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -6
+              },
+              {
+                "opponent": "Sacha Simpson",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -20
+              },
+              {
+                "opponent": "Bob Sickles",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -7
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Group 5",
+        "players": [
+          {
+            "name": "Ron Buxton",
+            "wins": 3,
+            "losses": 0,
+            "gamesWon": 9,
+            "gamesLost": 2,
+            "ratingBefore": 636,
+            "ratingAfter": 655,
+            "ratingAdj": 19,
+            "matches": [
+              {
+                "opponent": "Simon He",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 5
+              },
+              {
+                "opponent": "Ben Khalili",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Damola Muritala",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 7
+              },
+              {
+                "opponent": "Musa Hasan",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 7
+              }
+            ]
+          },
+          {
+            "name": "Simon He",
+            "wins": 2,
+            "losses": 2,
+            "gamesWon": 7,
+            "gamesLost": 8,
+            "ratingBefore": 554,
+            "ratingAfter": 581,
+            "ratingAdj": 27,
+            "matches": [
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -5
+              },
+              {
+                "opponent": "Ben Khalili",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 25
+              },
+              {
+                "opponent": "Damola Muritala",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 13
+              },
+              {
+                "opponent": "Musa Hasan",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -6
+              }
+            ]
+          },
+          {
+            "name": "Ben Khalili",
+            "wins": 1,
+            "losses": 1,
+            "gamesWon": 4,
+            "gamesLost": 3,
+            "ratingBefore": 685,
+            "ratingAfter": 665,
+            "ratingAdj": -20,
+            "matches": [
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Simon He",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -25
+              },
+              {
+                "opponent": "Damola Muritala",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 5
+              },
+              {
+                "opponent": "Musa Hasan",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              }
+            ]
+          },
+          {
+            "name": "Damola Muritala",
+            "wins": 1,
+            "losses": 3,
+            "gamesWon": 5,
+            "gamesLost": 11,
+            "ratingBefore": 600,
+            "ratingAfter": 583,
+            "ratingAdj": -17,
+            "matches": [
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -7
+              },
+              {
+                "opponent": "Simon He",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Ben Khalili",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -5
+              },
+              {
+                "opponent": "Musa Hasan",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 8
+              }
+            ]
+          },
+          {
+            "name": "Musa Hasan",
+            "wins": 1,
+            "losses": 2,
+            "gamesWon": 6,
+            "gamesLost": 7,
+            "ratingBefore": 603,
+            "ratingAfter": 594,
+            "ratingAdj": -9,
+            "matches": [
+              {
+                "opponent": "Ron Buxton",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -7
+              },
+              {
+                "opponent": "Simon He",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 6
+              },
+              {
+                "opponent": "Ben Khalili",
+                "gamesWon": 0,
+                "gamesLost": 0,
+                "adj": 0
+              },
+              {
+                "opponent": "Damola Muritala",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "Group 6",
+        "players": [
+          {
+            "name": "Trevor Soria",
+            "wins": 3,
+            "losses": 0,
+            "gamesWon": 9,
+            "gamesLost": 2,
+            "ratingBefore": 469,
+            "ratingAfter": 478,
+            "ratingAdj": 9,
+            "matches": [
+              {
+                "opponent": "Reyan Mukherjee",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 2
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 3,
+                "gamesLost": 0,
+                "adj": 4
+              },
+              {
+                "opponent": "Graham Zajac",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 3
+              }
+            ]
+          },
+          {
+            "name": "Reyan Mukherjee",
+            "wins": 2,
+            "losses": 1,
+            "gamesWon": 6,
+            "gamesLost": 6,
+            "ratingBefore": 303,
+            "ratingAfter": 324,
+            "ratingAdj": 21,
+            "matches": [
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -2
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 13
+              },
+              {
+                "opponent": "Graham Zajac",
+                "gamesWon": 3,
+                "gamesLost": 2,
+                "adj": 10
+              }
+            ]
+          },
+          {
+            "name": "Susie Epstein",
+            "wins": 1,
+            "losses": 2,
+            "gamesWon": 4,
+            "gamesLost": 7,
+            "ratingBefore": 358,
+            "ratingAfter": 348,
+            "ratingAdj": -10,
+            "matches": [
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 0,
+                "gamesLost": 3,
+                "adj": -4
+              },
+              {
+                "opponent": "Reyan Mukherjee",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -13
+              },
+              {
+                "opponent": "Graham Zajac",
+                "gamesWon": 3,
+                "gamesLost": 1,
+                "adj": 7
+              }
+            ]
+          },
+          {
+            "name": "Graham Zajac",
+            "wins": 0,
+            "losses": 3,
+            "gamesWon": 5,
+            "gamesLost": 9,
+            "ratingBefore": 332,
+            "ratingAfter": 312,
+            "ratingAdj": -20,
+            "matches": [
+              {
+                "opponent": "Trevor Soria",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -3
+              },
+              {
+                "opponent": "Reyan Mukherjee",
+                "gamesWon": 2,
+                "gamesLost": 3,
+                "adj": -10
+              },
+              {
+                "opponent": "Susie Epstein",
+                "gamesWon": 1,
+                "gamesLost": 3,
+                "adj": -7
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
     "date": "2026-08-17",
     "fileId": "1RJOJHtHWQPlcaqC3EvVX4MkcFTXPxKci",
     "groups": [
