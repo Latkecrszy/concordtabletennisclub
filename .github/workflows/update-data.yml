@@ -8,8 +8,12 @@ on:
         type: boolean
         default: false
   schedule:
-    # 11:30 PM Pacific during daylight saving time, after Monday and Wednesday sessions.
-    - cron: "30 6 * * 2,4"
+    # 11:30 PM Pacific, after Monday and Wednesday sessions. GitHub Actions
+    # cron doesn't support timezones, so both possible UTC offsets are
+    # scheduled (PDT and PST); the check-timing job below skips whichever
+    # one doesn't actually land at 11pm Pacific once DST is accounted for.
+    - cron: "30 6 * * 2,4"  # 11:30 PM PDT (UTC-7)
+    - cron: "30 7 * * 2,4"  # 11:30 PM PST (UTC-8)
   push:
     branches:
       - main
@@ -24,7 +28,27 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-timing:
+    # Only meaningful for scheduled runs, since both DST cron slots fire.
+    # Manual (workflow_dispatch) and push-triggered runs always proceed.
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+    steps:
+      - id: check
+        run: |
+          HOUR=$(TZ='America/Los_Angeles' date +%H)
+          if [ "$HOUR" = "23" ]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping: current Pacific hour is $HOUR, not 23 (11 PM) — this cron slot doesn't match the current DST offset."
+          fi
+
   update-and-deploy:
+    needs: [check-timing]
+    if: always() && (github.event_name != 'schedule' || needs.check-timing.outputs.proceed == 'true')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
