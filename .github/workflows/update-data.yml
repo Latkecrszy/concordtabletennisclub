@@ -52,12 +52,19 @@ jobs:
           CTTC_FETCH_DELAY_MS: 250
           CTTC_FULL_REFRESH: ${{ github.event.inputs.full_refresh == 'true' }}
 
+      - name: Send session summary email
+        run: npm run email:send
+        env:
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          EMAIL_SUBSCRIBERS: ${{ secrets.EMAIL_SUBSCRIBERS }}
+
       - name: Commit generated data
         run: |
-          if [ -n "$(git status --porcelain data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json)" ]; then
+          if [ -n "$(git status --porcelain data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json .cache/last-emailed-session.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json
+            git add data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json .cache/last-emailed-session.json
             git commit -m "Update session data"
             git push
           fi
