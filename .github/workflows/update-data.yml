@@ -8,12 +8,21 @@ on:
         type: boolean
         default: false
   schedule:
-    # 11:30 PM Pacific, after Monday and Wednesday sessions. GitHub Actions
-    # cron doesn't support timezones, so both possible UTC offsets are
-    # scheduled (PDT and PST); the check-timing job below skips whichever
-    # one doesn't actually land at 11pm Pacific once DST is accounted for.
-    - cron: "30 6 * * 2,4"  # 11:30 PM PDT (UTC-7)
-    - cron: "30 7 * * 2,4"  # 11:30 PM PST (UTC-8)
+    # Primary: 10:30 PM Pacific, after Monday and Wednesday sessions.
+    # Fallback: 8:00 AM Pacific the next morning, in case results weren't
+    # posted yet by 10:30 PM the night before (e.g. entered late) — a run
+    # that finds nothing new is a safe no-op (see check-timing and the
+    # already-sent guard in scripts/send-session-email.js), so this just
+    # gives late data a second chance to go out without ever double-sending.
+    #
+    # GitHub Actions cron doesn't support timezones, so both possible UTC
+    # offsets are scheduled for each slot (PDT and PST); the check-timing
+    # job below skips whichever slot doesn't actually match the current
+    # Pacific hour once DST is accounted for.
+    - cron: "30 5 * * 2,4"  # 10:30 PM PDT (UTC-7)
+    - cron: "30 6 * * 2,4"  # 10:30 PM PST (UTC-8)
+    - cron: "0 15 * * 2,4"  # 8:00 AM PDT (UTC-7)
+    - cron: "0 16 * * 2,4"  # 8:00 AM PST (UTC-8)
   push:
     branches:
       - main
@@ -39,11 +48,11 @@ jobs:
       - id: check
         run: |
           HOUR=$(TZ='America/Los_Angeles' date +%H)
-          if [ "$HOUR" = "23" ]; then
+          if [ "$HOUR" = "22" ] || [ "$HOUR" = "08" ]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
           else
             echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping: current Pacific hour is $HOUR, not 23 (11 PM) — this cron slot doesn't match the current DST offset."
+            echo "Skipping: current Pacific hour is $HOUR, not 22 (10 PM primary) or 08 (8 AM fallback) — this cron slot doesn't match the current DST offset."
           fi
 
   update-and-deploy:
