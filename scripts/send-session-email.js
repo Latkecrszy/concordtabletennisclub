@@ -37,6 +37,12 @@
 //   Option B - plain list, no sheet:
 //        EMAIL_SUBSCRIBERS     recipient addresses, comma or newline separated
 //
+//   Testing before going live:
+//        TEST_EMAIL_OVERRIDE   when set, sends ONLY to this address - skips
+//        the sheet and EMAIL_SUBSCRIBERS entirely, and skips (does not
+//        update) the already-sent marker, so test sends can be repeated
+//        freely without affecting the real send once this is unset.
+//
 // Run: node scripts/send-session-email.js [date]
 // (date defaults to the latest session; omit it for normal/scheduled runs)
 
@@ -96,16 +102,23 @@ async function main() {
     return;
   }
 
-  const subscribers = await loadSubscribers();
+  const testOverride = (process.env.TEST_EMAIL_OVERRIDE || '').trim();
+  const isTest = Boolean(testOverride);
+
+  const subscribers = isTest ? [testOverride] : await loadSubscribers();
   if (!subscribers.length) {
     console.log('No subscribers found (checked Google Sheet and EMAIL_SUBSCRIBERS); skipping send.');
     return;
   }
 
-  const lastSent = loadJson(LAST_SENT_FILE, { date: null });
-  if (lastSent.date === date) {
-    console.log('Session ' + date + ' was already emailed; skipping.');
-    return;
+  if (isTest) {
+    console.log('TEST MODE: sending only to ' + testOverride + ' (sheet/EMAIL_SUBSCRIBERS and the already-sent marker are both bypassed).');
+  } else {
+    const lastSent = loadJson(LAST_SENT_FILE, { date: null });
+    if (lastSent.date === date) {
+      console.log('Session ' + date + ' was already emailed; skipping.');
+      return;
+    }
   }
 
   const gmailUser = process.env.GMAIL_USER;
@@ -142,8 +155,10 @@ async function main() {
     html: email.html
   });
 
-  writeJson(LAST_SENT_FILE, { date: date, sentAt: new Date().toISOString() });
-  console.log('Sent "' + email.subject + '" to ' + subscribers.length + ' subscriber(s).');
+  if (!isTest) {
+    writeJson(LAST_SENT_FILE, { date: date, sentAt: new Date().toISOString() });
+  }
+  console.log('Sent "' + email.subject + '" to ' + subscribers.length + ' subscriber(s)' + (isTest ? ' (test send)' : '') + '.');
 }
 
 main().catch(function (err) {
