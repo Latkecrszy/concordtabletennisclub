@@ -106,10 +106,18 @@ jobs:
 
       - name: Commit generated data
         run: |
-          if [ -n "$(git status --porcelain data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json .cache/last-emailed-session.json)" ]; then
+          FILES="data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json .cache/last-emailed-session.json"
+          # .cache/last-emailed-session.json only exists after the first real
+          # (non-test) send, so filter to files that actually exist -- git add
+          # errors fatally on a literal path that isn't there.
+          EXISTING=""
+          for f in $FILES; do
+            [ -e "$f" ] && EXISTING="$EXISTING $f"
+          done
+          if [ -n "$EXISTING" ] && [ -n "$(git status --porcelain $EXISTING)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add data/sessions.json data/session-details-2024.json data/session-details-2025.json data/session-details-2026.json data/players.json .cache/session-raw-cache.json .cache/last-emailed-session.json
+            git add $EXISTING
             git commit -m "Update session data"
             git push
           fi
