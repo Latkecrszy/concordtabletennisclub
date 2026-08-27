@@ -11,14 +11,20 @@ on:
     # Primary: 10:30 PM Pacific, after Monday and Wednesday sessions.
     # Fallback: 8:00 AM Pacific the next morning, in case results weren't
     # posted yet by 10:30 PM the night before (e.g. entered late) — a run
-    # that finds nothing new is a safe no-op (see check-timing and the
-    # already-sent guard in scripts/send-session-email.js), so this just
+    # that finds nothing new is a safe no-op (fetching is incremental, and
+    # send-session-email.js has its own already-sent guard), so this just
     # gives late data a second chance to go out without ever double-sending.
     #
     # GitHub Actions cron doesn't support timezones, so both possible UTC
-    # offsets are scheduled for each slot (PDT and PST); the check-timing
-    # job below skips whichever slot doesn't actually match the current
-    # Pacific hour once DST is accounted for.
+    # offsets are scheduled for each slot (PDT and PST).
+    #
+    # There's deliberately no "is it actually the right Pacific hour"
+    # gate here anymore: GitHub can delay a scheduled trigger by hours
+    # during high load, and a strict hour check used to skip those late
+    # firings entirely, silently dropping a whole session's update (this
+    # is what happened to the Wednesday 2026-08-26 session). Every firing
+    # now just runs — safe because fetching is a no-op when nothing's
+    # new, and emailing is blocked by the already-sent marker.
     - cron: "30 5 * * 2,4"  # 10:30 PM PDT (UTC-7)
     - cron: "30 6 * * 2,4"  # 10:30 PM PST (UTC-8)
     - cron: "0 15 * * 2,4"  # 8:00 AM PDT (UTC-7)
@@ -37,27 +43,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-timing:
-    # Only meaningful for scheduled runs, since both DST cron slots fire.
-    # Manual (workflow_dispatch) and push-triggered runs always proceed.
-    if: github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    outputs:
-      proceed: ${{ steps.check.outputs.proceed }}
-    steps:
-      - id: check
-        run: |
-          HOUR=$(TZ='America/Los_Angeles' date +%H)
-          if [ "$HOUR" = "22" ] || [ "$HOUR" = "08" ]; then
-            echo "proceed=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "proceed=false" >> "$GITHUB_OUTPUT"
-            echo "Skipping: current Pacific hour is $HOUR, not 22 (10 PM primary) or 08 (8 AM fallback) — this cron slot doesn't match the current DST offset."
-          fi
-
   update-and-deploy:
-    needs: [check-timing]
-    if: always() && (github.event_name != 'schedule' || needs.check-timing.outputs.proceed == 'true')
     runs-on: ubuntu-latest
     environment:
       name: github-pages
