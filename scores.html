@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Round Robin Scores - Concord Table Tennis Club</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <script>
+    if (sessionStorage.getItem("cttc-organizer-unlocked") !== "true") {
+      var requestedDate = new URLSearchParams(window.location.search).get("date") || "";
+      window.location.replace("roundrobins.html?organize=1&return=scores&date=" + encodeURIComponent(requestedDate));
+    }
+  </script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title"><a href="index.html"><img src="assets/logo-transparent.png" alt="Concord Table Tennis Club" class="site-logo"></a></div>
+    <nav>
+      <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+      <a href="index.html">Home</a>
+      <a href="firstvisit.html">First Visit</a>
+      <a href="about.html">About</a>
+      <a href="roundrobins.html" class="active">Round Robins</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="halloffame.html">Hall of Fame</a>
+      <a href="membership.html">Membership</a>
+      <a href="coaching.html">Coaching</a>
+      <a href="rules.html">Rules</a>
+      <a href="pictures.html">Pictures</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform" target="_blank" rel="noopener">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="scorebook-main">
+  <div class="organizer-page-header scorebook-page-header">
+    <div>
+      <a id="scorebook-back" class="organizer-back" href="organizer.html">&larr; Edit roster &amp; groups</a>
+      <h1>Match Scores</h1>
+      <p id="scorebook-date-label" class="organizer-date-label"></p>
+    </div>
+    <div class="organizer-header-controls">
+      <label for="scorebook-date">Session date</label>
+      <input id="scorebook-date" type="date">
+      <button id="scorebook-lock" class="organizer-icon-button organizer-lock-button" type="button" title="Lock organizer" aria-label="Lock organizer">&#128274;</button>
+    </div>
+  </div>
+
+  <div class="session-backup-bar">
+    <div>
+      <strong>Session backup</strong>
+      <span id="scorebook-backup-message" aria-live="polite">Roster, groups, promotions, and scores</span>
+    </div>
+    <div class="session-backup-actions">
+      <button id="scorebook-export" class="organizer-secondary-button" type="button">Export backup</button>
+      <button id="scorebook-import" class="organizer-secondary-button" type="button">Import backup</button>
+      <input id="scorebook-import-file" type="file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+
+  <p id="scorebook-status" class="organizer-status" role="status">Loading saved groups...</p>
+
+  <div id="scorebook-workspace" hidden>
+    <div class="scorebook-toolbar">
+      <div>
+        <strong id="scorebook-progress">0 of 0 matches complete</strong>
+        <span id="scorebook-save-status">Saved in this browser</span>
+      </div>
+      <button id="scorebook-print" class="organizer-secondary-button" type="button">Preview match sheets</button>
+    </div>
+
+    <div id="scorebook-empty" class="organizer-empty" hidden>
+      <strong>No organized groups for this date.</strong>
+      <a id="scorebook-empty-link" class="button-link" href="organizer.html">Organize roster</a>
+    </div>
+
+    <div id="scorebook-groups" class="scorebook-groups"></div>
+  </div>
+</main>
+
+<footer>
+  Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
+</footer>
+
+<script src="navtoggle.js"></script>
+<script src="custom-players.js"></script>
+<script src="session-backup.js"></script>
+<script src="scores.js"></script>
+</body>
+</html>

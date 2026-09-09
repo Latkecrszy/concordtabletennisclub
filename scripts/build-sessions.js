@@ -1,11 +1,15 @@
-// Run: node scripts/build-sessions.js > data/sessions.json
+// Run: node scripts/build-sessions.js
 // Crawls the public Google Drive folder where CTTC stores its round robin
 // session reports. Falls back to scraping CTTC's old Google Sites RR archive
 // (in case the root folder ID below ever changes), then to the legacy
 // scraped link list, so local builds keep working either way.
 
+const fs = require('fs/promises');
+const path = require('path');
 const cheerio = require('cheerio');
 
+const ROOT = path.resolve(__dirname, '..');
+const SESSIONS_FILE = path.join(ROOT, 'data', 'sessions.json');
 const ROOT_DRIVE_FOLDER_ID = process.env.CTTC_ROOT_FOLDER_ID ||
   '1-AULcheVLrGzxi2hkRbErUBwaGDDqf7O';
 const ARCHIVE_URL = process.env.CTTC_ARCHIVE_URL ||
@@ -227,9 +231,46 @@ async function discoveredSessions() {
   }
 }
 
+async function existingSessions() {
+  try {
+    return JSON.parse(await fs.readFile(SESSIONS_FILE, 'utf8'));
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+}
+
+function assertNoSessionRemoval(discovered, existing) {
+  if (process.env.CTTC_ALLOW_SESSION_REMOVALS === 'true') return;
+
+  const discoveredDates = new Set(discovered.map(function (session) { return session.date; }));
+  const missingDates = existing
+    .filter(function (session) { return !discoveredDates.has(session.date); })
+    .map(function (session) { return session.date; });
+
+  if (!missingDates.length) return;
+
+  const preview = missingDates.slice(0, 5).join(', ');
+  const remainder = missingDates.length > 5 ? ', and ' + (missingDates.length - 5) + ' more' : '';
+  throw new Error(
+    'Discovered session list would remove ' + missingDates.length + ' existing session(s): ' +
+    preview + remainder + '. Existing data was preserved. Set CTTC_ALLOW_SESSION_REMOVALS=true ' +
+    'only when removing sessions intentionally.'
+  );
+}
+
+async function writeSessions(sessions) {
+  const temporaryFile = SESSIONS_FILE + '.tmp';
+  await fs.writeFile(temporaryFile, JSON.stringify(sessions, null, 2) + '\n');
+  await fs.rename(temporaryFile, SESSIONS_FILE);
+}
+
 async function main() {
   const sessions = await discoveredSessions();
-  process.stdout.write(JSON.stringify(sessions, null, 2) + '\n');
+  const existing = await existingSessions();
+  assertNoSessionRemoval(sessions, existing);
+  await writeSessions(sessions);
+  process.stdout.write('Session list written: ' + sessions.length + ' sessions.\n');
 }
 
 // Raw link data: [filename, url]
@@ -494,5 +535,6 @@ module.exports = {
   sessionsFromEntries,
   legacySessions,
   oldSiteSessions,
-  discoveredSessions
+  discoveredSessions,
+  assertNoSessionRemoval
 };
