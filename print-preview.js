@@ -4,10 +4,11 @@
   var requestedDate = parameters.get("date");
   var selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(requestedDate || "") ? requestedDate : localDateString(new Date());
   var mode = parameters.get("mode") === "scores" ? "scores" : "groups";
+  var returnToOrganizer = parameters.get("return") === "organizer";
   var state = readState();
   var groups = state && Array.isArray(state.groups) ? state.groups : [];
   var matchScores = state && state.matchScores ? state.matchScores : {};
-  var ratings = new Map();
+  var playersByName = new Map();
 
   var backLink = document.getElementById("print-preview-back");
   var title = document.getElementById("print-preview-title");
@@ -52,11 +53,20 @@
   }
 
   function matchupsFor(group) {
+    var rotation = group.slice();
     var matchups = [];
-    for (var first = 0; first < group.length; first += 1) {
-      for (var second = first + 1; second < group.length; second += 1) {
-        matchups.push([group[first], group[second]]);
+    if (rotation.length % 2) rotation.push(null);
+
+    for (var round = 0; round < rotation.length - 1; round += 1) {
+      for (var pair = 0; pair < rotation.length / 2; pair += 1) {
+        var firstName = rotation[pair];
+        var secondName = rotation[rotation.length - 1 - pair];
+        if (firstName && secondName) {
+          matchups.push(group.indexOf(firstName) < group.indexOf(secondName) ?
+            [firstName, secondName] : [secondName, firstName]);
+        }
       }
+      rotation = [rotation[0], rotation[rotation.length - 1]].concat(rotation.slice(1, -1));
     }
     return matchups;
   }
@@ -74,6 +84,42 @@
     if (className) cell.className = className;
     row.appendChild(cell);
     return cell;
+  }
+
+  function playerRating(name) {
+    var player = playersByName.get(name);
+    return player && Number.isFinite(player.currentRating) ? String(player.currentRating) : "--";
+  }
+
+  function playerRecord(name) {
+    var player = playersByName.get(name);
+    if (!player || !Number.isInteger(player.totalWins) || !Number.isInteger(player.totalLosses)) return "--/--";
+    return player.totalWins + "/" + player.totalLosses;
+  }
+
+  function ratingAdjustmentFor(firstName, secondName) {
+    var first = playersByName.get(firstName);
+    var second = playersByName.get(secondName);
+    if (!first || !second || !Number.isFinite(first.currentRating) || !Number.isFinite(second.currentRating)) {
+      return "--/--";
+    }
+
+    var difference = Math.abs(first.currentRating - second.currentRating);
+    var bands = [
+      [12, 8, 8],
+      [37, 7, 10],
+      [62, 6, 13],
+      [87, 5, 16],
+      [112, 4, 20],
+      [137, 3, 25],
+      [162, 2, 30],
+      [187, 2, 35],
+      [212, 1, 40],
+      [237, 1, 45],
+      [Infinity, 0, 50]
+    ];
+    var band = bands.find(function (entry) { return difference <= entry[0]; });
+    return band[1] + "/" + band[2];
   }
 
   function createSheetHeader(sheet, label, groupName) {
@@ -120,7 +166,7 @@
         var playerName = document.createElement("strong");
         playerName.textContent = name;
         var rating = document.createElement("span");
-        rating.textContent = ratings.has(name) ? String(ratings.get(name)) : "Unrated";
+        rating.textContent = playerRating(name) === "--" ? "Unrated" : playerRating(name);
         item.appendChild(playerName);
         item.appendChild(rating);
         list.appendChild(item);
@@ -132,114 +178,145 @@
     sheets.appendChild(sheet);
   }
 
-  function renderRosterTable(group) {
-    var table = document.createElement("table");
-    table.className = "print-roster-table";
-    var head = document.createElement("thead");
-    var headRow = document.createElement("tr");
-    ["No.", "Player", "Rating"].forEach(function (label) {
-      appendCell(headRow, "th", label);
-    });
-    head.appendChild(headRow);
-    table.appendChild(head);
+  function renderPlayerRegister(group) {
+    var register = document.createElement("section");
+    register.className = "tournament-player-register";
+    var heading = document.createElement("div");
+    heading.className = "tournament-player-key";
+    heading.textContent = "Player [Club Rating] (Club Record) (League Record)";
+    register.appendChild(heading);
 
-    var body = document.createElement("tbody");
-    group.forEach(function (name, index) {
-      var row = document.createElement("tr");
-      appendCell(row, "td", String(index + 1));
-      appendCell(row, "td", name, "print-player-name");
-      appendCell(row, "td", ratings.has(name) ? String(ratings.get(name)) : "-");
-      body.appendChild(row);
+    group.forEach(function (name) {
+      var player = document.createElement("div");
+      player.className = "tournament-player-row";
+      player.textContent = name + " [" + playerRating(name) + "] (" + playerRecord(name) + ") (--/--)";
+      register.appendChild(player);
     });
-    table.appendChild(body);
-    return table;
+    return register;
   }
 
-  function renderMatchesTable(group) {
-    var table = document.createElement("table");
-    table.className = "print-matches-table";
-    var head = document.createElement("thead");
-    var headRow = document.createElement("tr");
-    ["No.", "Player A", "Result", "Player B", "Winner"].forEach(function (label) {
-      appendCell(headRow, "th", label);
+  function renderInstructions() {
+    var instructions = [
+      "No pre-match warm-ups! All warm-ups must be done before the start of the competition.",
+      "Play each opponent a best-of-five 11-point-game match.",
+      "Record games won lost.",
+      "Winners are responsible for recording match results.",
+      "The table winner advances to a higher table the next week",
+      "Put your table away after completion of the last match."
+    ];
+    var list = document.createElement("ul");
+    list.className = "tournament-instructions";
+    instructions.forEach(function (instruction) {
+      var item = document.createElement("li");
+      var checkbox = document.createElement("span");
+      checkbox.className = "tournament-checkbox";
+      checkbox.setAttribute("aria-hidden", "true");
+      var text = document.createElement("span");
+      text.textContent = instruction;
+      item.appendChild(checkbox);
+      item.appendChild(text);
+      list.appendChild(item);
     });
-    head.appendChild(headRow);
-    table.appendChild(head);
+    return list;
+  }
 
-    var body = document.createElement("tbody");
-    matchupsFor(group).forEach(function (matchup, index) {
+  function renderTournamentHeader() {
+    var header = document.createElement("div");
+    header.className = "tournament-brand";
+    var logo = document.createElement("img");
+    logo.src = "assets/logo-transparent.png";
+    logo.alt = "";
+    var name = document.createElement("div");
+    var clubName = document.createElement("span");
+    clubName.textContent = "Concord Table Tennis Club";
+    var sheetName = document.createElement("strong");
+    sheetName.textContent = "Tournament Sheet";
+    name.appendChild(clubName);
+    name.appendChild(sheetName);
+    header.appendChild(logo);
+    header.appendChild(name);
+    return header;
+  }
+
+  function renderMatchSchedule(group) {
+    var schedule = document.createElement("section");
+    schedule.className = "tournament-schedule";
+    var heading = document.createElement("div");
+    heading.className = "tournament-schedule-heading";
+    var title = document.createElement("strong");
+    title.textContent = "Match Schedules/Results";
+    var adjustment = document.createElement("span");
+    adjustment.innerHTML = "Rating Adj.<br>Expected/Upset";
+    heading.appendChild(title);
+    heading.appendChild(adjustment);
+    schedule.appendChild(heading);
+
+    var matches = document.createElement("div");
+    matches.className = "tournament-matches";
+    matchupsFor(group).forEach(function (matchup) {
       var score = matchScores[matchKey(matchup[0], matchup[1])] || null;
       var firstGames = gamesFor(score, matchup[0]);
       var secondGames = gamesFor(score, matchup[1]);
-      var hasResult = Number.isInteger(firstGames) && Number.isInteger(secondGames);
-      var winner = hasResult && firstGames !== secondGames ? (firstGames > secondGames ? matchup[0] : matchup[1]) : "";
-      var row = document.createElement("tr");
-      appendCell(row, "td", String(index + 1));
-      appendCell(row, "td", matchup[0], "print-player-name");
-      appendCell(row, "td", hasResult ? firstGames + " - " + secondGames : "", "print-result-cell");
-      appendCell(row, "td", matchup[1], "print-player-name");
-      appendCell(row, "td", winner, "print-winner-cell");
-      body.appendChild(row);
-    });
-    table.appendChild(body);
-    return table;
-  }
+      var match = document.createElement("div");
+      match.className = "tournament-match";
 
-  function renderStandingsTable(group) {
-    var table = document.createElement("table");
-    table.className = "print-final-table";
-    var head = document.createElement("thead");
-    var headRow = document.createElement("tr");
-    ["No.", "Player", "Wins", "Losses", "Place"].forEach(function (label) {
-      appendCell(headRow, "th", label);
-    });
-    head.appendChild(headRow);
-    table.appendChild(head);
+      var names = document.createElement("div");
+      names.className = "tournament-match-names";
+      [matchup[0], matchup[1]].forEach(function (name) {
+        var player = document.createElement("span");
+        player.textContent = name;
+        names.appendChild(player);
+      });
 
-    var body = document.createElement("tbody");
-    group.forEach(function (name, index) {
-      var row = document.createElement("tr");
-      appendCell(row, "td", String(index + 1));
-      appendCell(row, "td", name, "print-player-name");
-      appendCell(row, "td", "");
-      appendCell(row, "td", "");
-      appendCell(row, "td", "");
-      body.appendChild(row);
+      var result = document.createElement("div");
+      result.className = "tournament-match-result";
+      [firstGames, secondGames].forEach(function (games) {
+        var box = document.createElement("span");
+        box.textContent = Number.isInteger(games) ? String(games) : "";
+        result.appendChild(box);
+      });
+
+      var ratingAdjustment = document.createElement("span");
+      ratingAdjustment.className = "tournament-rating-adjustment";
+      ratingAdjustment.textContent = ratingAdjustmentFor(matchup[0], matchup[1]);
+      match.appendChild(names);
+      match.appendChild(result);
+      match.appendChild(ratingAdjustment);
+      matches.appendChild(match);
     });
-    table.appendChild(body);
-    return table;
+    schedule.appendChild(matches);
+    return schedule;
   }
 
   function renderScoreSheets() {
     groups.forEach(function (group, groupIndex) {
       var sheet = document.createElement("article");
-      sheet.className = "print-sheet print-score-sheet";
-      createSheetHeader(sheet, "ROUND ROBIN SCORE SHEET", "Group " + (groupIndex + 1));
+      sheet.className = "print-sheet print-score-sheet print-tournament-sheet";
+      var columns = document.createElement("div");
+      columns.className = "tournament-sheet-columns";
 
-      var rosterHeading = document.createElement("h2");
-      rosterHeading.textContent = "Players";
-      sheet.appendChild(rosterHeading);
-      sheet.appendChild(renderRosterTable(group));
+      var left = document.createElement("div");
+      left.className = "tournament-sheet-left";
+      var metadata = document.createElement("div");
+      metadata.className = "tournament-metadata";
+      var date = document.createElement("span");
+      date.textContent = "Date:  " + formatDate(selectedDate);
+      var tableNumber = document.createElement("span");
+      tableNumber.textContent = "Table #  " + (groupIndex + 1);
+      metadata.appendChild(date);
+      metadata.appendChild(tableNumber);
+      left.appendChild(metadata);
+      left.appendChild(renderPlayerRegister(group));
+      left.appendChild(renderInstructions());
 
-      var matchesHeading = document.createElement("h2");
-      matchesHeading.textContent = "Matches - best of five games";
-      sheet.appendChild(matchesHeading);
-      sheet.appendChild(renderMatchesTable(group));
+      var right = document.createElement("div");
+      right.className = "tournament-sheet-right";
+      right.appendChild(renderTournamentHeader());
+      right.appendChild(renderMatchSchedule(group));
 
-      var standingsHeading = document.createElement("h2");
-      standingsHeading.textContent = "Final standings";
-      sheet.appendChild(standingsHeading);
-      sheet.appendChild(renderStandingsTable(group));
-
-      var signoff = document.createElement("div");
-      signoff.className = "print-sheet-signoff";
-      var winner = document.createElement("span");
-      winner.textContent = "Group winner: ______________________________";
-      var recorder = document.createElement("span");
-      recorder.textContent = "Recorded by: ______________________________";
-      signoff.appendChild(winner);
-      signoff.appendChild(recorder);
-      sheet.appendChild(signoff);
+      columns.appendChild(left);
+      columns.appendChild(right);
+      sheet.appendChild(columns);
       sheets.appendChild(sheet);
     });
   }
@@ -247,11 +324,12 @@
   function render() {
     sheets.innerHTML = "";
     var scoreMode = mode === "scores";
-    title.textContent = scoreMode ? "Score Sheet Preview" : "Group List Preview";
+    title.textContent = scoreMode ? "Tournament Sheet Preview" : "Group List Preview";
     summary.textContent = formatDate(selectedDate) + " · " + (scoreMode ? groups.length +
-      (groups.length === 1 ? " score sheet" : " score sheets") : "1 group list");
-    backLink.href = (scoreMode ? "scores.html" : "organizer.html") + "?date=" + encodeURIComponent(selectedDate);
-    backLink.textContent = scoreMode ? "\u2190 Back to scores" : "\u2190 Back to organizer";
+      (groups.length === 1 ? " tournament sheet" : " tournament sheets") : "1 group list");
+    var backToOrganizer = !scoreMode || returnToOrganizer;
+    backLink.href = (backToOrganizer ? "organizer.html" : "scores.html") + "?date=" + encodeURIComponent(selectedDate);
+    backLink.textContent = backToOrganizer ? "\u2190 Back to organizer" : "\u2190 Back to scores";
     organizeLink.href = "organizer.html?date=" + encodeURIComponent(selectedDate);
     printButton.disabled = groups.length === 0;
 
@@ -272,7 +350,8 @@
   document.querySelectorAll("[data-preview-mode]").forEach(function (button) {
     button.addEventListener("click", function () {
       mode = button.getAttribute("data-preview-mode");
-      window.history.replaceState(null, "", "print-preview.html?date=" + encodeURIComponent(selectedDate) + "&mode=" + mode);
+      window.history.replaceState(null, "", "print-preview.html?date=" + encodeURIComponent(selectedDate) + "&mode=" + mode +
+        (returnToOrganizer ? "&return=organizer" : ""));
       render();
     });
   });
@@ -288,7 +367,7 @@
     })
     .then(function (playerData) {
       window.CTTCCustomPlayers.combine(playerData.players || []).forEach(function (player) {
-        if (Number.isFinite(player.currentRating)) ratings.set(player.name, player.currentRating);
+        playersByName.set(player.name, player);
       });
       render();
     })

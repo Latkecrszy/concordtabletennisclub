@@ -138,9 +138,9 @@
     var eligibleNames = new Set(previousWinners.keys());
     previousWinners.forEach(function (winner, name) {
       var fromGroup = currentGroupIndex(name);
-      if (fromGroup <= 0) return;
+      var targetGroup = winner.groupIndex - 1;
+      if (fromGroup < 0 || targetGroup < 0 || targetGroup >= groups.length || fromGroup <= targetGroup) return;
 
-      var targetGroup = fromGroup - 1;
       var winnerPosition = groups[fromGroup].indexOf(name);
       var swapPosition = -1;
       for (var index = groups[targetGroup].length - 1; index >= 0; index -= 1) {
@@ -442,7 +442,7 @@
       weekday: "long",
       month: "long",
       day: "numeric"
-    }) + ". Eligible group winners are moved one group above their rating-based placement.";
+    }) + ". Winners are guaranteed one group above the group they won, unless their rating already places them there or higher.";
   }
 
   function render() {
@@ -547,7 +547,7 @@
   });
   document.getElementById("organizer-rebuild").addEventListener("click", organizeByRating);
   document.getElementById("organizer-print").addEventListener("click", function () {
-    window.location.href = "print-preview.html?date=" + encodeURIComponent(selectedDate) + "&mode=groups";
+    window.location.href = "print-preview.html?date=" + encodeURIComponent(selectedDate) + "&mode=scores&return=organizer";
   });
   document.getElementById("organizer-finish").addEventListener("click", function () {
     saveState();
