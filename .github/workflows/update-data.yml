@@ -115,7 +115,7 @@ jobs:
         run: |
           mkdir -p _site
           cp .nojekyll CNAME _site/
-          cp *.html style.css navtoggle.js favicon.svg _site/
+          cp *.html style.css navtoggle.js custom-players.js organizer.js scores.js print-preview.js session-backup.js favicon.svg _site/
           cp -R data _site/
           cp -R assets _site/
 

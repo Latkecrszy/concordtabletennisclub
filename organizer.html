@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Round Robin Organizer - Concord Table Tennis Club</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <script>
+    if (sessionStorage.getItem("cttc-organizer-unlocked") !== "true") {
+      var requestedDate = new URLSearchParams(window.location.search).get("date") || "";
+      window.location.replace("roundrobins.html?organize=1&date=" + encodeURIComponent(requestedDate));
+    }
+  </script>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="site-title"><a href="index.html"><img src="assets/logo-transparent.png" alt="Concord Table Tennis Club" class="site-logo"></a></div>
+    <nav>
+      <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">&#9776;</button>
+      <a href="index.html">Home</a>
+      <a href="firstvisit.html">First Visit</a>
+      <a href="about.html">About</a>
+      <a href="roundrobins.html" class="active">Round Robins</a>
+      <a href="leaderboard.html">Leaderboard</a>
+      <a href="halloffame.html">Hall of Fame</a>
+      <a href="membership.html">Membership</a>
+      <a href="coaching.html">Coaching</a>
+      <a href="rules.html">Rules</a>
+      <a href="pictures.html">Pictures</a>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLSdbpyuHfnAEMRjwcA4fM1cgb75ieaa8xzXpKImt8ljRoC1WZA/viewform" target="_blank" rel="noopener">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<main class="organizer-main">
+  <div class="organizer-page-header">
+    <div>
+      <a class="organizer-back" href="roundrobins.html">&larr; Round Robins</a>
+      <h1>Round Robin Organizer</h1>
+      <p id="organizer-date-label" class="organizer-date-label"></p>
+    </div>
+    <div class="organizer-header-controls">
+      <label for="organizer-date">Session date</label>
+      <input id="organizer-date" type="date">
+      <button id="organizer-lock" class="organizer-icon-button organizer-lock-button" type="button" title="Lock organizer" aria-label="Lock organizer">&#128274;</button>
+    </div>
+  </div>
+
+  <div class="session-backup-bar">
+    <div>
+      <strong>Session backup</strong>
+      <span id="organizer-backup-message" aria-live="polite">Roster, groups, promotions, and scores</span>
+    </div>
+    <div class="session-backup-actions">
+      <button id="organizer-export" class="organizer-secondary-button" type="button">Export backup</button>
+      <button id="organizer-import" class="organizer-secondary-button" type="button">Import backup</button>
+      <input id="organizer-import-file" type="file" accept="application/json,.json" hidden>
+    </div>
+  </div>
+
+  <p id="organizer-status" class="organizer-status" role="status">Loading player ratings and session history...</p>
+
+  <div id="organizer-workspace" class="organizer-workspace" hidden>
+    <aside class="organizer-members-panel">
+      <div class="organizer-section-heading">
+        <h2>Members</h2>
+      </div>
+      <label class="organizer-search-label" for="organizer-member-search">Search by name</label>
+      <input id="organizer-member-search" class="organizer-member-search" type="search" placeholder="Start typing a member name" autocomplete="off">
+      <p id="organizer-search-count" class="organizer-small-status"></p>
+      <ul id="organizer-member-results" class="organizer-member-results"></ul>
+
+      <div class="organizer-custom-player">
+        <button id="organizer-new-player-toggle" class="organizer-text-button" type="button" aria-expanded="false">+ Add a new player</button>
+        <form id="organizer-new-player-form" hidden>
+          <label for="organizer-new-player-name">Player name</label>
+          <label for="organizer-new-player-rating">Rating <span>(optional)</span></label>
+          <input id="organizer-new-player-name" type="text" maxlength="80" autocomplete="off" required>
+          <input id="organizer-new-player-rating" type="number" min="0" max="4000" step="1" inputmode="numeric">
+          <p id="organizer-new-player-message" class="organizer-custom-player-message" role="status"></p>
+          <div class="organizer-custom-player-actions">
+            <button class="organizer-primary-button" type="submit">Add to roster</button>
+            <button id="organizer-new-player-cancel" class="organizer-text-button" type="button">Cancel</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="organizer-section-heading organizer-roster-heading">
+        <h2>Roster <span id="organizer-roster-count" class="organizer-count-badge">0</span></h2>
+        <button id="organizer-clear" class="organizer-text-button" type="button">Clear roster</button>
+      </div>
+      <ul id="organizer-roster" class="organizer-roster"></ul>
+    </aside>
+
+    <section class="organizer-groups-panel">
+      <div class="organizer-section-heading organizer-groups-heading">
+        <div>
+          <h2>Groups</h2>
+          <p id="organizer-group-summary" class="organizer-small-status"></p>
+        </div>
+        <div class="organizer-group-actions">
+          <button id="organizer-rebuild" class="organizer-secondary-button" type="button">Rebuild by rating</button>
+          <button id="organizer-print" class="organizer-icon-button" type="button" title="Preview tournament sheets" aria-label="Preview tournament sheets">&#128424;</button>
+          <button id="organizer-finish" class="organizer-primary-button" type="button">Done organizing &rarr;</button>
+        </div>
+      </div>
+      <p id="organizer-promotion-context" class="organizer-promotion-context"></p>
+      <div id="organizer-empty" class="organizer-empty">
+        <strong>No players signed up yet.</strong>
+        <span>Search the member list and add today&rsquo;s players.</span>
+      </div>
+      <div id="organizer-groups" class="organizer-groups"></div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
+</footer>
+
+<script src="navtoggle.js"></script>
+<script src="custom-players.js"></script>
+<script src="session-backup.js"></script>
+<script src="organizer.js"></script>
+</body>
+</html>
