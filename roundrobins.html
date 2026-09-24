@@ -37,7 +37,13 @@
 
 <main>
 
-  <h1>Round Robins</h1>
+  <div class="page-title-row">
+    <h1>Round Robins</h1>
+    <button id="organizer-launch" class="organizer-launch" type="button">
+      <span aria-hidden="true">&#128274;</span>
+      Organize
+    </button>
+  </div>
 
   <p>Every Monday and Wednesday night, players are divided into groups of 5 or 6 by rating and play a round robin against everyone in their group. Results are posted after each session. Ratings are updated based on wins and losses within the group.</p>
 
@@ -74,11 +80,81 @@
 
 </main>
 
+<dialog id="organizer-login" class="organizer-login">
+  <form id="organizer-login-form" method="dialog">
+    <div class="organizer-login-heading">
+      <span class="organizer-login-lock" aria-hidden="true">&#128274;</span>
+      <div>
+        <h2>Organizer access</h2>
+        <p>Enter the club organizer password.</p>
+      </div>
+    </div>
+    <label for="organizer-password">Password</label>
+    <input id="organizer-password" type="password" autocomplete="current-password" required>
+    <p id="organizer-login-error" class="organizer-login-error" role="alert" hidden>Incorrect password.</p>
+    <div class="organizer-login-actions">
+      <button class="organizer-secondary-button" type="button" id="organizer-login-cancel">Cancel</button>
+      <button class="organizer-primary-button" type="submit">Unlock</button>
+    </div>
+  </form>
+</dialog>
+
 <footer>
   Concord Table Tennis Club, Walnut Creek, CA. Open since 1972. A 501(c)(3) nonprofit, sanctioned by USATT.
 </footer>
 
 <script src="navtoggle.js"></script>
+
+<script>
+(function () {
+  var ACCESS_KEY = "cttc-organizer-unlocked";
+  var dialog = document.getElementById("organizer-login");
+  var form = document.getElementById("organizer-login-form");
+  var password = document.getElementById("organizer-password");
+  var error = document.getElementById("organizer-login-error");
+  var query = new URLSearchParams(window.location.search);
+
+  function destination() {
+    var date = /^\d{4}-\d{2}-\d{2}$/.test(query.get("date") || "") ? query.get("date") : "";
+    var page = query.get("return") === "scores" ? "scores.html" : "organizer.html";
+    return page + (date ? "?date=" + encodeURIComponent(date) : "");
+  }
+
+  function openLogin() {
+    error.hidden = true;
+    password.value = "";
+    dialog.showModal();
+    setTimeout(function () { password.focus(); }, 0);
+  }
+
+  document.getElementById("organizer-launch").addEventListener("click", function () {
+    if (sessionStorage.getItem(ACCESS_KEY) === "true") {
+      window.location.href = destination();
+      return;
+    }
+    openLogin();
+  });
+
+  document.getElementById("organizer-login-cancel").addEventListener("click", function () {
+    dialog.close();
+  });
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    if (password.value !== "cttcadmin") {
+      error.hidden = false;
+      password.select();
+      return;
+    }
+    sessionStorage.setItem(ACCESS_KEY, "true");
+    window.location.href = destination();
+  });
+
+  if (query.get("organize") === "1") {
+    openLogin();
+  }
+}());
+</script>
 
 <script>
 (function () {

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Print Preview - Concord Table Tennis Club</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="assets/logo.png" type="image/png">
+  <script>
+    if (sessionStorage.getItem("cttc-organizer-unlocked") !== "true") {
+      var requestedDate = new URLSearchParams(window.location.search).get("date") || "";
+      window.location.replace("roundrobins.html?organize=1&date=" + encodeURIComponent(requestedDate));
+    }
+  </script>
+</head>
+<body class="print-preview-body">
+  <main class="print-preview-main">
+    <section class="print-preview-toolbar" aria-label="Print preview controls">
+      <a id="print-preview-back" class="organizer-back" href="organizer.html">&larr; Back</a>
+      <div class="print-preview-heading">
+        <span>Print preview</span>
+        <h1 id="print-preview-title">Round Robin Sheets</h1>
+        <p id="print-preview-summary"></p>
+      </div>
+      <div class="print-preview-actions">
+        <div class="print-preview-modes" role="group" aria-label="Preview type">
+          <button type="button" data-preview-mode="groups">Group lists</button>
+          <button type="button" data-preview-mode="scores">Tournament sheets</button>
+        </div>
+        <button id="print-preview-print" class="organizer-primary-button" type="button">Print</button>
+      </div>
+    </section>
+
+    <p id="print-preview-status" class="organizer-status" role="status">Loading session...</p>
+    <section id="print-preview-empty" class="print-preview-empty" hidden>
+      <strong>No organized groups for this date.</strong>
+      <a id="print-preview-organize" class="button-link" href="organizer.html">Organize roster</a>
+    </section>
+    <div id="print-preview-sheets" class="print-preview-sheets" hidden></div>
+  </main>
+
+  <script src="custom-players.js"></script>
+  <script src="print-preview.js"></script>
+</body>
+</html>
