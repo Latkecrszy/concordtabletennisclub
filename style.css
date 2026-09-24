@@ -226,6 +226,35 @@ td {
 
 /* ---- Two-column layout ---- */
 
+.announcement {
+  border: 2px solid var(--red);
+  background: #fff9ee;
+  padding: 18px 20px;
+  margin-bottom: 36px;
+}
+
+.announcement h3 {
+  margin-top: 0;
+}
+
+.announcement-tag {
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 2px 8px;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.current-tag {
+  font-size: 0.8rem;
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
