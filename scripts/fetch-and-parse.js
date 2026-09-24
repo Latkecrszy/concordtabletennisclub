@@ -129,8 +129,13 @@ function readRows($, table) {
 
 // Most matches won first; ties (and groups with no match detail) fall back
 // to rating-after-adjustment descending; players with neither sort last.
+function entryRating(player) {
+  if (player.ratingBefore !== null && player.ratingBefore !== undefined) return player.ratingBefore;
+  return player.ratingAfter === undefined ? null : player.ratingAfter;
+}
+
 function sortByGroupResult(players) {
-  return players.slice().sort(function (a, b) {
+  const sorted = players.slice().sort(function (a, b) {
     if (a.wins !== null && b.wins !== null && a.wins !== b.wins) {
       return b.wins - a.wins;
     }
@@ -139,6 +144,16 @@ function sortByGroupResult(players) {
     if (b.ratingAfter === null) return -1;
     return b.ratingAfter - a.ratingAfter;
   });
+
+  // Three-way tie for the most wins: the lowest rated of the three wins the table.
+  if (!sorted.length || sorted[0].wins === null) return sorted;
+  const tied = sorted.filter(function (player) { return player.wins === sorted[0].wins; });
+  if (tied.length !== 3 || tied.some(function (player) { return entryRating(player) === null; })) return sorted;
+
+  const winner = tied.reduce(function (lowest, player) {
+    return entryRating(player) < entryRating(lowest) ? player : lowest;
+  });
+  return [winner].concat(sorted.filter(function (player) { return player !== winner; }));
 }
 
 function parseSummaryOnlyGroup(name, rows) {
