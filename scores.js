@@ -6,6 +6,7 @@
   var state = null;
   var groups = [];
   var matchScores = {};
+  var ratingsByName = new Map();
 
   var dateInput = document.getElementById("scorebook-date");
   var dateLabel = document.getElementById("scorebook-date-label");
@@ -94,6 +95,25 @@
     return matchups;
   }
 
+  function ratingFor(name) {
+    var rating = ratingsByName.get(name);
+    return Number.isFinite(rating) ? rating : 0;
+  }
+
+  // When exactly three players tie for the most wins, the lowest rated of the
+  // three is the table winner.
+  function applyThreeWayTieRule(standings, isComplete) {
+    if (!isComplete || !standings.length) return standings;
+    var topWins = standings[0].wins;
+    var tied = standings.filter(function (standing) { return standing.wins === topWins; });
+    if (tied.length !== 3) return standings;
+
+    var winner = tied.reduce(function (lowest, standing) {
+      return ratingFor(standing.name) < ratingFor(lowest.name) ? standing : lowest;
+    });
+    return [winner].concat(standings.filter(function (standing) { return standing !== winner; }));
+  }
+
   function standingsFor(group) {
     var originalOrder = new Map();
     var standings = new Map();
@@ -122,12 +142,18 @@
       }
     });
 
-    return Array.from(standings.values()).sort(function (left, right) {
+    var sorted = Array.from(standings.values()).sort(function (left, right) {
       var leftDifferential = left.gamesWon - left.gamesLost;
       var rightDifferential = right.gamesWon - right.gamesLost;
       return right.wins - left.wins || rightDifferential - leftDifferential ||
         originalOrder.get(left.name) - originalOrder.get(right.name);
     });
+    var isComplete = matchupsFor(group).every(function (matchup) {
+      return scoreState(scoreFor(matchup[0], matchup[1])) === "complete";
+    });
+    var ordered = applyThreeWayTieRule(sorted, isComplete);
+    if (isComplete && ordered.length) ordered[0].isWinner = true;
+    return ordered;
   }
 
   function makeScoreSelect(playerName, opponentName, value) {
@@ -180,7 +206,7 @@
     standingsFor(group).forEach(function (standing) {
       var row = document.createElement("tr");
       var name = document.createElement("td");
-      name.textContent = standing.name;
+      name.textContent = (standing.isWinner ? "\uD83C\uDFC6 " : "") + standing.name;
       row.appendChild(name);
       [standing.wins + "-" + standing.losses, standing.gamesWon + "-" + standing.gamesLost].forEach(function (value) {
         var cell = document.createElement("td");
@@ -317,6 +343,16 @@
     document.getElementById("scorebook-print").disabled = groups.length === 0;
     renderGroups();
   }
+
+  fetch("data/players.json")
+    .then(function (response) { return response.ok ? response.json() : { players: [] }; })
+    .catch(function () { return { players: [] }; })
+    .then(function (playerData) {
+      window.CTTCCustomPlayers.combine(playerData.players || []).forEach(function (player) {
+        ratingsByName.set(player.name, player.currentRating);
+      });
+      renderGroups();
+    });
 
   dateInput.value = selectedDate;
   loadSelectedDate();
